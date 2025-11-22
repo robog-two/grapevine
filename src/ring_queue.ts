@@ -36,8 +36,13 @@ export class RingQueue<E> {
   /**
    * dequeue
    */
-  public dequeue(): E {
-    throw new Error("Not implemented");
+  public dequeue(): E | undefined {
+    if (this.isEmpty()) {
+      return undefined;
+    }
+
+    this.endIndex--; // Remember, this is exclusive.
+    return this.items[this.endIndex];
   }
 
   /**

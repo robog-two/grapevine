@@ -17,8 +17,9 @@ describe("Ring Queue", () => {
 
   it("should return an item when not empty", () => {
     const rq = new RingQueue<string>();
+    assertEquals(rq.dequeue(), undefined);
     rq.enqueue("Item One");
-    assertFalse(rq.isEmpty);
+    assertFalse(rq.isEmpty());
     assertEquals(rq.dequeue(), "Item One");
   });
 });

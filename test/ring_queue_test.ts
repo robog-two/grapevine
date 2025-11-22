@@ -26,7 +26,7 @@ describe("Ring Queue", () => {
 
   it("should operate in FIFO order", () => {
     const rq = new RingQueue<number>();
-    const n = 5;
+    const n = 30;
 
     for (const i of range(n)) {
       rq.enqueue(i);
@@ -38,7 +38,7 @@ describe("Ring Queue", () => {
     );
   });
 
-it("should wrap around without resizing", () => {
+  it("should wrap around without resizing", () => {
     const rq = new RingQueue<number>();
     rq.__testing_disable_resize = true;
 

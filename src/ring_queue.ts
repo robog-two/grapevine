@@ -15,7 +15,7 @@ export class RingQueue<E> {
    * size
    */
   public size(): number {
-    if (this.startIndex >= this.endIndex) {
+    if (this.endIndex >= this.startIndex) {
       return this.endIndex - this.startIndex;
     } else {
       return this.items.length - (this.startIndex - this.endIndex);
@@ -26,12 +26,14 @@ export class RingQueue<E> {
    * enqueue
    */
   public enqueue(item: E) {
-    if (this.endIndex == this.items.length) {
-      this.endIndex = 0;
-    }
+    this.doubleSizeIfFull();
 
     this.items[this.endIndex] = item;
     this.endIndex++; // Remember, this is EXclusive
+
+    if (this.endIndex == this.items.length) {
+      this.endIndex = 0;
+    }
   }
 
   /**
@@ -43,6 +45,9 @@ export class RingQueue<E> {
     }
 
     const item = this.items[this.startIndex];
+
+    // Not strictly necessary but may offer security benefits
+    this.items[this.startIndex] == undefined;
 
     this.startIndex++; // Remember, this is INclusive.
     if (this.startIndex == this.items.length) {
@@ -59,10 +64,25 @@ export class RingQueue<E> {
     throw new Error("Not implemented");
   }
 
-  private doubleSizeIfFull(): boolean {
-    if (this.__testing_disable_resize) {
-      throw new Error("Resized when not allowed");
+  private doubleSizeIfFull() {
+    if (this.size() == this.items.length - 1) {
+      if (this.__testing_disable_resize) {
+        throw new Error("Resized when not allowed");
+      }
+
+      const newItems = new Array(this.items.length * 2) as [E | undefined];
+      const originalSize = this.size();
+
+      for (let i = 0; i < originalSize; i++) {
+        newItems[i] = this.dequeue();
+      }
+
+      this.items = newItems;
+      this.startIndex = 0;
+      this.endIndex = originalSize;
+      return true;
+    } else {
+      return false;
     }
-    return false;
   }
 }

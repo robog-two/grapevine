@@ -8,4 +8,10 @@ describe("Ring Queue", () => {
     assert(rq.isEmpty);
     assertEquals(rq.size(), 0);
   });
+
+  it("should accept an item", () => {
+    const rq = new RingQueue<string>();
+
+    rq.enqueue("Item One");
+  });
 });

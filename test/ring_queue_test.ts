@@ -64,4 +64,16 @@ describe("Ring Queue", () => {
       }
     }
   });
+
+  it("should clear properly", () => {
+    const rq = new RingQueue<number>();
+    for (const i of range(20)) {
+      rq.enqueue(i);
+    }
+
+    rq.clear();
+
+    assert(rq.isEmpty());
+    assertEquals(rq.size(), 0);
+  });
 });

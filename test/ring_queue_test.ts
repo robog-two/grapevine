@@ -1,4 +1,4 @@
-import { assert, assertEquals } from "@std/assert";
+import { assert, assertEquals, assertFalse } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
 import { RingQueue } from "../src/ring_queue.ts";
 
@@ -13,5 +13,12 @@ describe("Ring Queue", () => {
     const rq = new RingQueue<string>();
 
     rq.enqueue("Item One");
+  });
+
+  it("should return an item when not empty", () => {
+    const rq = new RingQueue<string>();
+    rq.enqueue("Item One");
+    assertFalse(rq.isEmpty);
+    assertEquals(rq.dequeue(), "Item One");
   });
 });

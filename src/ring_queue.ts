@@ -27,11 +27,11 @@ export class RingQueue<E> {
    */
   public enqueue(item: E) {
     if (this.endIndex == this.items.length) {
-      throw new Error("Not implemented");
+      this.endIndex = 0;
     }
 
     this.items[this.endIndex] = item;
-    this.endIndex++;
+    this.endIndex++; // Remember, this is EXclusive
   }
 
   /**
@@ -43,7 +43,12 @@ export class RingQueue<E> {
     }
 
     const item = this.items[this.startIndex];
-    this.startIndex++; // Remember, this is exclusive.
+
+    this.startIndex++; // Remember, this is INclusive.
+    if (this.startIndex == this.items.length) {
+      this.startIndex = 0;
+    }
+
     return item;
   }
 
@@ -55,7 +60,9 @@ export class RingQueue<E> {
   }
 
   private doubleSizeIfFull(): boolean {
-    if (this.__testing_disable_resize) throw new Error("Resized when not allowed");
+    if (this.__testing_disable_resize) {
+      throw new Error("Resized when not allowed");
+    }
     return false;
   }
 }

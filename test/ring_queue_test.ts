@@ -34,7 +34,7 @@ describe("Ring Queue", () => {
 
     assertEquals(
       range(n).map((_) => rq.dequeue()).toArray(),
-      range(n).toArray()
+      range(n).toArray(),
     );
-  })
+  });
 });

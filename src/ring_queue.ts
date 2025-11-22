@@ -2,6 +2,7 @@ export class RingQueue<E> {
   items: [E | undefined] = new Array(10) as [undefined];
   startIndex: number = 0; // inclusive
   endIndex: number = 0; // exclusive
+  __testing_disable_resize: boolean = false;
 
   /**
    * isEmpty
@@ -41,8 +42,9 @@ export class RingQueue<E> {
       return undefined;
     }
 
-    this.endIndex--; // Remember, this is exclusive.
-    return this.items[this.endIndex];
+    const item = this.items[this.startIndex];
+    this.startIndex++; // Remember, this is exclusive.
+    return item;
   }
 
   /**
@@ -53,6 +55,7 @@ export class RingQueue<E> {
   }
 
   private doubleSizeIfFull(): boolean {
+    if (this.__testing_disable_resize) throw new Error();
     throw new Error("Not implemented");
   }
 }

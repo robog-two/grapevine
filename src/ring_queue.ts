@@ -46,9 +46,6 @@ export class RingQueue<E> {
 
     const item = this.items[this.startIndex];
 
-    // Not strictly necessary but may offer security benefits
-    this.items[this.startIndex] = undefined;
-
     this.startIndex++; // Remember, this is INclusive.
     if (this.startIndex == this.items.length) {
       this.startIndex = 0;
@@ -61,7 +58,8 @@ export class RingQueue<E> {
    * Removes all items from the queue, afterwards size() == 0 and isEmpty() == true
    */
   public clear() {
-    throw new Error("Not implemented");
+    this.startIndex = 0;
+    this.endIndex = 0;
   }
 
   private doubleSizeIfFull() {

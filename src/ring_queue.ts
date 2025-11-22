@@ -7,7 +7,7 @@ export class RingQueue<E> {
    * isEmpty
    */
   public isEmpty(): boolean {
-    return this.size() == 0;
+    return this.endIndex == this.startIndex;
   }
 
   /**

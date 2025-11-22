@@ -37,4 +37,14 @@ describe("Ring Queue", () => {
       range(n).toArray(),
     );
   });
+
+it("should wrap around without resizing", () => {
+    const rq = new RingQueue<number>();
+    rq.__testing_disable_resize = true;
+
+    for (const i of range(30)) {
+      rq.enqueue(1);
+      rq.dequeue();
+    }
+  });
 });

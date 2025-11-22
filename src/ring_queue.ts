@@ -55,7 +55,7 @@ export class RingQueue<E> {
   }
 
   private doubleSizeIfFull(): boolean {
-    if (this.__testing_disable_resize) throw new Error();
-    throw new Error("Not implemented");
+    if (this.__testing_disable_resize) throw new Error("Resized when not allowed");
+    return false;
   }
 }

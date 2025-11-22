@@ -5,14 +5,14 @@ export class RingQueue<E> {
   __testing_disable_resize: boolean = false;
 
   /**
-   * isEmpty
+   * @returns true if there are no items in this queue
    */
   public isEmpty(): boolean {
     return this.endIndex == this.startIndex;
   }
 
   /**
-   * size
+   * @returns the number of items in this queue
    */
   public size(): number {
     if (this.endIndex >= this.startIndex) {
@@ -23,7 +23,7 @@ export class RingQueue<E> {
   }
 
   /**
-   * enqueue
+   * @param item An item which will be added to the queue
    */
   public enqueue(item: E) {
     this.doubleSizeIfFull();
@@ -37,7 +37,7 @@ export class RingQueue<E> {
   }
 
   /**
-   * dequeue
+   * @returns The first item that was enqueued, or undefined if the queue is empty
    */
   public dequeue(): E | undefined {
     if (this.isEmpty()) {
@@ -58,7 +58,7 @@ export class RingQueue<E> {
   }
 
   /**
-   * clear
+   * Removes all items from the queue, afterwards size() == 0 and isEmpty() == true
    */
   public clear() {
     throw new Error("Not implemented");

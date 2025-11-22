@@ -3,7 +3,7 @@
  *
  * for (const i of range(5)) {}
  */
-export function* range(start: number, stop: number | undefined, step = 1) {
+export function* range(start: number, stop: number | undefined = undefined, step = 1) {
   if (stop == undefined) {
     // The first parameter is implicitly stop if only one parameter is given.
     stop = start;

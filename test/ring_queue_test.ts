@@ -1,6 +1,7 @@
 import { assert, assertEquals, assertFalse } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
 import { RingQueue } from "../src/ring_queue.ts";
+import { range } from "../src/elegance.ts";
 
 describe("Ring Queue", () => {
   it("should report emptiness", () => {
@@ -22,4 +23,18 @@ describe("Ring Queue", () => {
     assertFalse(rq.isEmpty());
     assertEquals(rq.dequeue(), "Item One");
   });
+
+  it("should operate in FIFO order", () => {
+    const rq = new RingQueue<number>();
+    const n = 5;
+
+    for (const i of range(n)) {
+      rq.enqueue(i);
+    }
+
+    assertEquals(
+      range(n).map((_) => rq.dequeue()).toArray(),
+      range(n).toArray()
+    );
+  })
 });

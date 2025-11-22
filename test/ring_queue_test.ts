@@ -47,4 +47,21 @@ describe("Ring Queue", () => {
       assert(rq.dequeue() == i);
     }
   });
+
+  it("should report size properly", () => {
+    const rq = new RingQueue<number>();
+    rq.__testing_disable_resize = true; // keep inital size of 10 to ensure wrap-around
+
+    // This accounts for wrap-arounds
+    for (const targetSize of range(1, 10)) {
+      for (const i of range(1, targetSize + 1)) {
+        rq.enqueue(i);
+        assertEquals(rq.size(), i);
+      }
+      for (const i of range(1, targetSize + 1)) {
+        rq.dequeue();
+        assertEquals(rq.size(), targetSize - i);
+      }
+    }
+  });
 });

@@ -25,7 +25,12 @@ export class RingQueue<E> {
    * enqueue
    */
   public enqueue(item: E) {
-    throw new Error("Not implemented");
+    if (this.endIndex == this.items.length) {
+      throw new Error("Not implemented");
+    }
+
+    this.items[this.endIndex] = item;
+    this.endIndex++;
   }
 
   /**

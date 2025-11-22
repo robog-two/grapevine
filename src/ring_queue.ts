@@ -47,7 +47,7 @@ export class RingQueue<E> {
     const item = this.items[this.startIndex];
 
     // Not strictly necessary but may offer security benefits
-    this.items[this.startIndex] == undefined;
+    this.items[this.startIndex] = undefined;
 
     this.startIndex++; // Remember, this is INclusive.
     if (this.startIndex == this.items.length) {

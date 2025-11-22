@@ -43,8 +43,8 @@ it("should wrap around without resizing", () => {
     rq.__testing_disable_resize = true;
 
     for (const i of range(30)) {
-      rq.enqueue(1);
-      rq.dequeue();
+      rq.enqueue(i);
+      assert(rq.dequeue() == i);
     }
   });
 });

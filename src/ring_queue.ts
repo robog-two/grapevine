@@ -1,7 +1,9 @@
+import { Queue } from "./queue.ts";
+
 /**
  * A FIFO Queue using an Array in a ring-like pattern to ensure O(1) (amortized) addition and deletion
  */
-export class RingQueue<E> {
+export class RingQueue<E> implements Queue<E> {
   items: [E | undefined] = new Array(10) as [undefined];
   startIndex: number = 0; // inclusive
   endIndex: number = 0; // exclusive

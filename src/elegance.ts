@@ -1,6 +1,10 @@
 import { assert } from "@std/assert/assert";
 
 /**
+ * elegance.ts - small functional snippets that make the code cleaner elsewhere
+ */
+
+/**
  * From Stack Overflow, a more elegant way to loop for n times, inspired by the pythonic syntax.
  *
  * for (const i of range(5)) { console.log(i) } // 0, 1, 2, 3, 4
@@ -9,21 +13,30 @@ import { assert } from "@std/assert/assert";
  * @param stop End of range, exclusive
  * @param step Will go from start to stop in steps of size step, may be negative if stop < start
  */
-export function* range(start: number, stop: number | undefined = undefined, step = 1) {
+export function* range(
+  start: number,
+  stop: number | undefined = undefined,
+  step = 1,
+) {
   if (stop == undefined) {
     // The first parameter is implicitly stop if only one parameter is given.
     stop = start;
     start = 0;
   }
 
+  assert(
+    stop != start,
+    "Range is empty"
+  )
+
   if (step > 0) {
-    assert(stop > start);
+    assert(stop > start, "Invalid range - may need to swap start/stop");
     // Counting forward
     for (let i = start; i < stop; i += step) {
       yield i;
     }
   } else {
-    assert(stop < start);
+    assert(stop < start, "Invalid range - may need to swap start/stop");
     // Counting backward
     for (let i = start; i > stop; i += step) {
       yield i;

@@ -44,7 +44,7 @@ digraph Grapevine {
       dequeue [fillcolor = lightblue;label = "dequeue()";shape = ellipse;];
       gather [fillcolor = lightblue;label = "Gatherer.gather()";shape = ellipse;];
       embed [fillcolor = lightblue;label = "Embedder.embedAndSave()";shape = ellipse;];
-      exit [fillcolor = lightblue;label = "dequeue()";shape = ellipse;];
+      exit [fillcolor = lightblue;label = "exit";shape = ellipse;];
 
       entrypoint -> seed
       seed -> dequeue

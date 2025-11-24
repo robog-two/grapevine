@@ -20,6 +20,8 @@ A natural language embedding index for Geminispace + Some HTTP
         - [ ] Filter bad urls with ublock
       - [ ] Advanced Embed
         - [ ] Real vector database
+      - [ ] Allow querying
+        - [ ] Allow querying through geminispace + HTTP api
     - [ ] High performance implementation
       - [ ] Parallelize gathering, delay between requests to the same IP, but shotgun-blast many different IPs
       - [ ] Gather everything

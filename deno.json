@@ -1,7 +1,8 @@
 {
   "tasks": {
     "dev": "deno run --watch main.ts",
-    "check": "deno test test/*.ts"
+    "check": "deno test test/*.ts",
+    "graphviz": "dot design.dot -Tpng -o design.png"
   },
   "imports": {
     "@derhuerst/gemini": "npm:@derhuerst/gemini@^2.0.1",

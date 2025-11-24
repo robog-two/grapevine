@@ -71,7 +71,7 @@ digraph Grapevine {
       fetchgemini -> extractgemtext
       fetchhttp -> extracthtml
       extractgemtext -> returngather
-      extractgemtext -> returngather
+      extracthtml -> returngather
     }
 
     subgraph cluster_embed {

@@ -1,0 +1,95 @@
+digraph Grapevine {
+  subgraph cluster_classes {
+    graph [label = "Classes"; style = "filled"; color = "#f1f1f1";];
+
+    node [style = filled;];
+
+    maints [fillcolor = lightblue;label = "main.ts";shape = diamond;];
+    ringqueue [fillcolor = lightblue;label = "RingQueue";shape = rect;];
+    queue [fillcolor = greenyellow;label = "Queue";shape = rect;];
+    gatherer [fillcolor = lightblue;label = "Gatherer";shape = rect;];
+    embedder [fillcolor = lightblue;label = "Embedder";shape = rect;];
+    vectorstorage [fillcolor = greenyellow;label = "VectorStorage";shape = rect;];
+    filevectorstorage [fillcolor = lightblue;label = "FileVectorStorage";shape = rect;];
+    disk [fillcolor = burlywood;label = "Disk";shape = cylinder;];
+    web [fillcolor = violet;label = "Web";shape = cylinder;];
+    gemini [fillcolor = violet;label = "Geminispace";shape = cylinder;];
+    embedmodel [fillcolor = violet;label = "Embedding Model";shape = cylinder;];
+
+    maints -> ringqueue;
+    maints -> queue;
+    ringqueue -> queue;
+    maints -> gatherer;
+    gatherer -> web;
+    gatherer -> gemini;
+    maints -> embedder;
+    embedder -> ringqueue;
+    embedder -> queue;
+    embedder -> embedmodel;
+    embedder -> vectorstorage;
+    embedder -> filevectorstorage;
+    filevectorstorage -> disk;
+    filevectorstorage -> vectorstorage;
+  }
+
+  subgraph cluster_main {
+    graph [label = "main.ts"; style = "filled"; color = "#f1f1f1";];
+
+    node [style = filled;];
+
+    subgraph cluster_crawl {
+      graph [label = "Crawl Loop"; style = "filled"; color = "#e0e0e0";];
+      entrypoint [fillcolor = lightblue;label = "main.ts";shape = ellipse;];
+      seed [fillcolor = lightblue;label = "Enqueue Seed URL";shape = ellipse;];
+      dequeue [fillcolor = lightblue;label = "dequeue()";shape = ellipse;];
+      gather [fillcolor = lightblue;label = "Gatherer.gather()";shape = ellipse;];
+      embed [fillcolor = lightblue;label = "Embedder.embedAndSave()";shape = ellipse;];
+      exit [fillcolor = lightblue;label = "dequeue()";shape = ellipse;];
+
+      entrypoint -> seed
+      seed -> dequeue
+      dequeue -> gather
+      gather -> embed
+      embed -> exit [label = "isEmpty()"]
+      embed -> dequeue
+
+    }
+
+    subgraph cluster_gather {
+      graph [label = "Gatherer"; style = "filled"; color = "#e0e0e0";];
+      gatherreceive [fillcolor = lightblue;label = "Receive URL";shape = ellipse;];
+      fetchgemini [fillcolor = lightblue;label = "Fetch gemini://";shape = diamond;];
+      fetchhttp [fillcolor = lightblue;label = "Fetch http(s)://";shape = diamond;];
+      filter [fillcolor = lightblue;label = "Filter disallowed URLS";shape = ellipse;];
+      extracthtml [fillcolor = lightblue;label = "reader.js & querySelectorAll(\"a\")";shape = ellipse;];
+      extractgemtext [fillcolor = lightblue;label = "Remove formatting, extract => lines";shape = ellipse;];
+      returngather [fillcolor = lightblue;label = "Return GatherResult";shape = ellipse;];
+
+      gatherreceive -> filter
+      filter -> fetchhttp
+      filter -> fetchgemini
+      fetchgemini -> extractgemtext
+      fetchhttp -> extracthtml
+      extractgemtext -> returngather
+      extractgemtext -> returngather
+    }
+
+    subgraph cluster_embed {
+      graph [label = "Embedder"; style = "filled"; color = "#e0e0e0";];
+      embedwait [fillcolor = lightblue;label = "Receive text & chunk";shape = diamond;];
+      embeddequeue [fillcolor = lightblue;label = "dequeue()";shape = ellipse;];
+      embedsend [fillcolor = lightblue;label = "Send to model";shape = ellipse;];
+      embedstore [fillcolor = lightblue;label = "Store in DB";shape = ellipse;];
+
+      embedwait -> embeddequeue [label = "enqueue() text chunks";];
+      embeddequeue -> embedwait [label = "isEmpty()";];
+      embeddequeue -> embedsend;
+      embedsend -> embedstore;
+      embedstore -> embeddequeue;
+    }
+
+    gather -> gatherreceive
+    returngather -> gather
+    embed -> embedwait
+  }
+}

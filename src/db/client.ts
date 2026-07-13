@@ -1,6 +1,7 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from './schema';
+import { runMigrations } from './init';
 
 declare global {
   // eslint-disable-next-line no-var
@@ -24,3 +25,8 @@ const sql = global.__personalCrmSql ?? createClient();
 if (process.env.NODE_ENV !== 'production') global.__personalCrmSql = sql;
 
 export const db = drizzle(sql, { schema });
+
+// Run migrations on first client initialization (non-blocking for performance)
+if (typeof global !== 'undefined' && !global.__personalCrmMigrationsRun) {
+  runMigrations().catch(err => console.error('Failed to run migrations:', err));
+}

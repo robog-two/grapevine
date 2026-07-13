@@ -8,13 +8,14 @@ declare global {
 }
 
 function createClient() {
-  // `postgres()` doesn't open a connection until the first query, so it's
-  // safe to construct with a placeholder when DATABASE_URL isn't set yet —
-  // this keeps `next build`'s static page-data collection (which imports
-  // every route module but sends no real requests) from failing before the
-  // app is even deployed. A real request against an unconfigured database
-  // will fail naturally at query time instead.
-  const url = process.env.DATABASE_URL || 'postgres://user:pass@localhost:5432/personal_crm';
+  // Prefer Vercel Postgres connection strings in production:
+  // - POSTGRES_PRISMA_URL: pooled connection (use for serverless functions)
+  // - DATABASE_URL_UNPOOLED: direct connection (use for migrations)
+  // Falls back to DATABASE_URL for other providers or local development
+  const url =
+    process.env.POSTGRES_PRISMA_URL ||
+    process.env.DATABASE_URL ||
+    'postgres://user:pass@localhost:5432/personal_crm';
   return postgres(url, { max: 5 });
 }
 

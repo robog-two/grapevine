@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="design_doc_mode" content="canvas">
+  <link rel="stylesheet" href="_ds/classical-ca4e77e6-8750-4213-ace7-b429f9adae90/styles.css">
+  <script src="_ds/classical-ca4e77e6-8750-4213-ace7-b429f9adae90/_ds_bundle.js"></script>
+  <style>
+    body{margin:0}
+    a{color:var(--color-text);text-decoration:underline}
+    a:hover{color:var(--color-neutral-700)}
+    .dv-turn{padding:52px 48px 44px;scroll-margin-top:16px}
+    .dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 22px}
+    .dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 8px;background:var(--color-neutral-900);color:#fff;border-radius:4px;text-decoration:none}
+    .dv-tname{font-family:var(--font-heading);font-weight:var(--wf-heading-weight,600);font-size:19px;color:var(--color-text)}
+    .dv-opts{display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start}
+    .dv-opt{flex:none;display:flex;flex-direction:column;gap:10px;scroll-margin-top:16px}
+    .dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 8px;background:var(--color-neutral-200);color:var(--color-text);border-radius:5px;text-decoration:none}
+    .dv-olabel{display:flex;align-items:baseline;gap:8px;font:13px var(--font-body);color:var(--color-neutral-600)}
+    .dv-card{max-width:100%;background:#fff;border:1px solid var(--color-neutral-200);border-radius:calc(var(--radius-lg) * var(--wf-radius-mult,1));overflow:hidden}
+    .dv-opt:target .dv-oid{background:var(--color-text);color:#fff}
+    .dv-next{margin:32px 0 0;font:13px var(--font-body);color:var(--color-neutral-600)}
+    .wf-ph{background:#fff;border-radius:calc(var(--radius-md)*var(--wf-radius-mult,1));display:flex;align-items:center;justify-content:center;color:var(--color-neutral-600);font:italic 12px var(--font-body);text-align:center;padding:6px}
+    .wf-annot{display:var(--wf-annot-display,inline);font:italic 11px var(--font-body);color:var(--color-neutral-600)}
+    .wf-cap{color:var(--color-neutral-600);font:11px var(--font-body);letter-spacing:.07em;text-transform:uppercase}
+    .wf-avatar{width:38px;height:38px;border-radius:calc(var(--radius-sm)*var(--wf-radius-mult,1));background:var(--wf-icon-bg);overflow:hidden;display:flex;flex:none}
+    .wf-avatar img{width:100%;height:100%;object-fit:contain;filter:var(--wf-icon-filter)}
+    .wf-avatar-lg{width:56px;height:56px}
+    .wf-folder-tab{display:none}
+    .wf-folder{background:#fff;border-radius:calc(var(--radius-md)*var(--wf-radius-mult,1));padding:calc(var(--space-3)*var(--wf-space-mult,1));display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+    .wf-folder-link{display:block;text-decoration:none;color:inherit}
+    .wf-topnav{display:flex;align-items:center;gap:calc(var(--space-4)*var(--wf-space-mult,1));padding:calc(var(--space-3)*var(--wf-space-mult,1)) calc(var(--space-3)*var(--wf-space-mult,1)) calc(var(--space-2)*var(--wf-space-mult,1))}
+    .wf-nav-brand{font-size:16px;margin-right:auto}
+    .wf-topnav a{padding:6px 2px;font-size:13px;color:var(--color-text);text-decoration:none;border-bottom:2px solid transparent}
+    .wf-topnav a:hover{color:var(--color-text)}
+    .wf-topnav a.current{color:var(--color-text);border-bottom-color:var(--color-text)}
+    .wf-topnav .wf-search-icon{margin-left:auto;font-size:15px;border-bottom:none}
+    .wf-bottomnav{display:flex;background:var(--color-surface);padding-top:6px}
+    .wf-bottomnav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px 10px;font-size:10px;color:var(--color-neutral-600);text-decoration:none}
+    .wf-bottomnav a.current{color:var(--color-text)}
+    .wf-tile{display:flex;flex-direction:column;align-items:center;gap:8px;text-decoration:none;color:inherit;padding:calc(var(--space-3)*var(--wf-space-mult,1));border-radius:calc(var(--radius-md)*var(--wf-radius-mult,1))}
+    .wf-tile:hover{font-weight:700}
+    .wf-canvas{background:#fff;position:relative}
+    .wf-rail{width:172px;flex:none;padding:calc(var(--space-3)*var(--wf-space-mult,1))}
+    .wf-rail-cap{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-600);font-weight:700;margin-bottom:10px}
+    .wf-rail-btn{display:flex;align-items:center;gap:8px;padding:6px 2px;font-size:13px;margin-bottom:2px;cursor:pointer;text-decoration:none;color:var(--color-text)}
+    .wf-rail-btn:hover{font-weight:700}
+    .wf-strip{width:392px;flex:none;padding:calc(var(--space-3)*var(--wf-space-mult,1));background:#fff}
+    .wf-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:calc(var(--space-2)*var(--wf-space-mult,1));grid-auto-flow:dense}
+    .wf-grid-full{grid-column:1 / -1}
+    .wf-drag{position:absolute;top:6px;left:8px;font-size:9px;color:var(--color-neutral-400);letter-spacing:2px;line-height:1}
+    .wf-att-link{overflow:hidden;padding:0}
+    .wf-att-link-thumb{background:var(--color-neutral-300);height:70px}
+    .wf-att-link-body{padding:calc(var(--space-2)*var(--wf-space-mult,1))}
+    .wf-att-photo2{aspect-ratio:1;display:flex;align-items:flex-end;padding:calc(var(--space-2)*var(--wf-space-mult,1))}
+    .wf-att-note2{aspect-ratio:3/4;background:#fff;border:1px dashed var(--color-neutral-400)}
+    .wf-att-label{position:absolute;top:7px;right:10px;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-600);font-weight:700}
+    .wf-att{background:#fff;border-radius:calc(var(--radius-md)*var(--wf-radius-mult,1));padding:calc(var(--space-3)*var(--wf-space-mult,1))}
+    .wf-att-note{background:#fff;border:1px dashed var(--color-neutral-400)}
+    .wf-att-eml{background:#fff;font-weight:600}
+    .wf-att-row{display:flex;justify-content:space-between;align-items:baseline;padding:4px 0;font-size:12px;gap:12px}
+    .wf-att-row>span:first-child{flex:none}
+    .wf-att-row>span:last-child{flex:1;min-width:0;white-space:normal;overflow-wrap:break-word;text-align:right}
+    .wf-att-addfield{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--color-text);padding-top:8px;cursor:pointer}
+    .wf-att-reminder{background:#fff;border:1.5px dashed var(--color-text);border-radius:calc(var(--radius-md)*var(--wf-radius-mult,1));padding:8px 12px}
+    .wf-att-mention{display:inline;font-weight:700;text-decoration:underline;color:var(--color-text)}
+    .wf-folder2{background:var(--color-surface);border:1px solid var(--color-divider);border-radius:calc(var(--radius-md)*var(--wf-radius-mult,1));padding:calc(var(--space-3)*var(--wf-space-mult,1));display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+  </style>
+</helmet>
+<div style="{{ rootVars }}">
+
+<section class="dv-turn" id="t15">
+  <div class="dv-thd"><a class="dv-tid" href="#t15">15</a><span class="dv-tname">Rich Text Editor — composing a note</span></div>
+  <div class="dv-opts">
+    <div class="dv-opt" id="15a">
+      <div class="dv-olabel"><a class="dv-oid" href="#15a">15a</a>Inline @mention + slash-command for dates</div>
+      <div class="dv-card" style="width:460px;padding:calc(var(--space-4)*var(--wf-space-mult))">
+        <div class="wf-att-label" style="position:static;margin-bottom:10px;display:block">Note</div>
+        <div style="display:flex;gap:14px;margin-bottom:calc(var(--space-3)*var(--wf-space-mult));font-size:15px">
+          <span style="font-weight:700;text-decoration:underline">B</span>
+          <span style="font-style:italic">i</span>
+          <span>U</span>
+          <span>🔗</span>
+          <span>•</span>
+          <span>@</span>
+          <span>📅</span>
+        </div>
+        <div style="font-size:14px;line-height:1.7;min-height:70px">
+          Met at the Series A demo day, introduced by <a style="font-weight:700">@Ava K<span style="opacity:.35">|</span></a>
+        </div>
+        <div style="margin:2px 0 calc(var(--space-3)*var(--wf-space-mult)) 0;display:flex;flex-direction:column;gap:2px">
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 8px;font-weight:700">
+            <div class="wf-avatar" style="width:24px;height:24px"><img src="uploads/noun-star-1607744.svg"></div>
+            <span>Ava Kim</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 8px;color:var(--color-neutral-600)">
+            <div class="wf-avatar" style="width:24px;height:24px"><img src="uploads/noun-snail-1585637.svg"></div>
+            <span>Lena Brandt</span>
+          </div>
+        </div>
+        <div class="wf-cap" style="margin-bottom:6px">typing "/" inserts a date, reminder, link or mention inline</div>
+        <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:calc(var(--space-4)*var(--wf-space-mult))">
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;font-weight:700">📅 <span>Date</span></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;color:var(--color-neutral-600)">⏰ <span>Reminder</span></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;color:var(--color-neutral-600)">🔗 <span>Link</span></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;color:var(--color-neutral-600)">@ <span>Mention</span></div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:10px">
+          <div class="btn btn-secondary">Cancel</div>
+          <a href="#3a" class="btn btn-primary" style="color:var(--color-text);border-color:var(--color-text);font-weight:700">Save</a>
+        </div>
+      </div>
+    </div>
+    <div class="dv-opt" id="15b">
+      <div class="dv-olabel"><a class="dv-oid" href="#15b">15b</a>Result once saved — reads as plain prose</div>
+      <div class="dv-card" style="width:420px;padding:calc(var(--space-4)*var(--wf-space-mult))">
+        <div class="wf-att-label" style="position:static;margin-bottom:10px;display:block">Note</div>
+        <div style="font-size:14px;line-height:1.7">
+          Met at the Series A demo day, introduced by <a href="#6a" style="font-weight:700">@Ava Kim</a>. Follow up <a href="#7a" style="font-weight:700;text-decoration:underline">📅 Friday morning</a> about the term sheet.
+        </div>
+        <div class="wf-cap" style="margin-top:calc(var(--space-3)*var(--wf-space-mult))">click any inline mention or date to jump there · click the note itself to re-open the editor</div>
+      </div>
+    </div>
+  </div>
+  <p class="dv-next">Try next: "show formatting marks (bold/italic) staying visible in the saved note" · "add an image-drop zone inside the editor"</p>
+</section>
+
+<section class="dv-turn" id="t0">
+  <div class="dv-thd"><a class="dv-tid" href="#t0">0</a><span class="dv-tname">Home — dashboard (entry point)</span></div>
+  <div class="dv-opts">
+    <div class="dv-opt" id="0a">
+      <div class="dv-olabel"><a class="dv-oid" href="#0a">0a</a>Overview with links to every area</div>
+      <div class="dv-card" style="width:780px;padding:0;display:flex;flex-direction:column">
+        <div class="wf-topnav">
+          <a href="#t0" class="wf-nav-brand" style="text-decoration:none;color:inherit">🗄</a>
+          <a href="#t1">Cabinets</a>
+          <a href="#5a">All People</a>
+          <a href="#11a" class="wf-search-icon">🔍</a>
+        </div>
+        <div style="flex:1;padding:calc(var(--space-4)*var(--wf-space-mult))">
+          <div style="font-family:var(--font-heading);font-weight:var(--wf-heading-weight);font-size:24px;margin-bottom:calc(var(--space-3)*var(--wf-space-mult))">Good morning</div>
+          <div class="wf-cap" style="margin-bottom:8px">Jump to</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:calc(var(--space-3)*var(--wf-space-mult));margin-bottom:calc(var(--space-4)*var(--wf-space-mult))">
+            <a href="#t1" class="wf-tile"><span style="font-size:20px">🗄</span><span style="font-size:12px">Cabinets</span></a>
+            <a href="#5a" class="wf-tile"><span style="font-size:20px">▦</span><span style="font-size:12px">All People</span></a>
+            <a href="#7a" class="wf-tile"><span style="font-size:20px">📅</span><span style="font-size:12px">Calendar</span></a>
+            <a href="#11a" class="wf-tile"><span style="font-size:20px">🔍</span><span style="font-size:12px">Search</span></a>
+          </div>
+          <div class="wf-cap" style="margin-bottom:8px">Recently opened people</div>
+          <div style="display:flex;gap:calc(var(--space-3)*var(--wf-space-mult))">
+            <sc-for list="{{ people4 }}" as="p" hint-placeholder-count="4">
+              <a href="#3a" class="wf-folder-link">
+                <div class="wf-folder" style="width:110px;height:96px">
+                  <div class="wf-folder-tab"></div>
+                  <div class="wf-avatar" style="margin:0 auto"><img src="{{ p.iconSrc }}"></div>
+                  <div style="font-size:12px;text-align:center">{{ p.name }}</div>
+                </div>
+              </a>
+            </sc-for>
+          </div>
+          <div style="margin-top:calc(var(--space-4)*var(--wf-space-mult));display:flex;gap:8px;align-items:center">
+            <span class="wf-annot">every tile and folder here is a real link — click to jump to that screen</span>
+          </div>
+          <div style="margin-top:calc(var(--space-3)*var(--wf-space-mult));display:flex;gap:8px">
+            <a href="#7a" class="btn btn-secondary">+ Reminder</a>
+            <a href="#12a" class="btn btn-secondary">Import contacts</a>
+            <a href="#t1" class="btn btn-primary" style="color:var(--color-text);border-color:var(--color-text);font-weight:700">+ New Cabinet</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="dv-next">Try next: "add an activity feed to Home" · "pin favorite cabinets to the sidebar"</p>
+</section>
+
+<section class="dv-turn" id="t1">
+  <div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">Filing Cabinets — top-level list</span></div>
+  <div class="dv-opts">
+    <div class="dv-opt" id="1a">
+      <div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Cabinet index</div>
+      <div class="dv-card" style="width:900px;padding:0;display:flex;flex-direction:column">
+        <div class="wf-topnav">
+          <a href="#t0" class="wf-nav-brand" style="text-decoration:none;color:inherit">🗄</a>
+          <a href="#t1" class="current">Cabinets</a>
+          <a href="#5a">All People</a>
+          <a href="#11a" class="wf-search-icon">🔍</a>
+        </div>
+        <div style="padding:calc(var(--space-4)*var(--wf-space-mult))">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:calc(var(--space-4)*var(--wf-space-mult))">
+          <div style="font-family:var(--font-heading);font-weight:var(--wf-heading-weight);font-size:24px">Cabinets</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span class="wf-annot">many-to-many: a person can sit in several</span>
+            <div class="wf-ph" style="width:110px;height:32px">+ New Cabinet</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:calc(var(--space-4)*var(--wf-space-mult))">
+          <a href="#5a" class="wf-folder-link"><div class="wf-folder" style="height:120px"><div class="wf-folder-tab"></div><div style="font-family:var(--font-heading);font-weight:var(--wf-heading-weight);font-size:16px">All People</div><div class="wf-cap">142 records</div></div></a>
+          <a href="#2a" class="wf-folder-link"><div class="wf-folder" style="height:120px"><div class="wf-folder-tab"></div><div style="font-family:var(--font-heading);font-weight:var(--wf-heading-weight);font-size:16px">Startup</div><div class="wf-cap">18 people</div></div></a>
+          <a href="#2b" class="wf-folder-link"><div class="wf-folder" style="height:120px"><div class="wf-folder-tab"></div><div style="font-family:var(--font-heading);font-weight:var(--wf-heading-weight);font-size:16px">College Professors</div><div class="wf-cap">6 people</div></div></a>
+          <a href="#2c" class="wf-folder-link"><div class="wf-folder" style="height:120px"><div class="wf-folder-tab"></div><div style="font-family:var(--font-heading);font-weight:var(--wf-heading-weight);font-size:16px">Friends</div><div class="wf-cap">27 people</div></div></a>
+          <div class="wf-folder" style="height:120px"><div class="wf-folder-tab"></div><div style="font-family:var(--font-heading);font-weight:var(--wf-heading-weight);font-size:16px">Family</div><div class="wf-cap">9 people</div></div>
+          <div class="wf-folder" style="height:120px;border-style:dashed;background:transparent;align-items:center;justify-content:center"><div class="wf-cap">+ New</div></div>
+        </div>
+        <span class="wf-annot" style="margin-top:calc(var(--space-3)*var(--wf-space-mult));display:inline-flex">each cabinet opens its Cabinet View (2a/2b/2c show 3 layout takes)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="dv-next">Try next: "reorder cabinets by drag" · "show a cabinet's read-only share state" · "add a color pick per cabinet"</p>
+</section>
+
+<section class="dv-turn" id="t2">
+  <div class="dv-thd"><a class="dv-tid" href="#t2">2</a><span class="dv-tname">Cabinet View — folder browser canvas</span></div>
+  <div class="dv-opts">
+    <div class="dv-opt" id="2a">
+      <div class="dv-olabel"><a class="dv-oid" href="#2a">2a</a>Even grid, alphabetical</div>
+      <div class="dv-card" style="width:800px;padding:0;display:flex;flex-direction:column">
+        <div class="wf-topnav">
+          <a href="#t0" class="wf-nav-brand" style="text-decoration:none;color:inherit">🗄</a>
+          <a href="#t1" class="current">Cabinets</a>
+          <a href="#5a">All People</a>
+          <a href="#11a" class="wf-search-icon">🔍</a>
+        </div>
+        <div style="padding:calc(var(--space-4)*var(--wf-space-mult))">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:calc(var(--space-3)*var(--wf-space-mult))">
+          <div style="display:flex;align-items:baseline;gap:8px"><a href="#t1" style="font-size:12px;color:var(--color-neutral-600)">Cabinets ›</a><div style="font-family:var(--font-heading);font-weight:var(--wf-heading-weight);font-size:20px">Startup</div></div>
+          <span class="wf-cap">18 people</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:calc(var(--space-3)*var(--wf-space-mult))">
+          <sc-for list="{{ people6 }}" as="p" hint-placeholder-count="6">
+            <a href="#3a" class="wf-folder-link">
+              <div class="wf-folder">
+                <div class="wf-avatar"><img src="{{ p.iconSrc }}"></div>
+                <div style="font-family:var(--font-heading);font-weight:var(--wf-heading-weight);font-size:13px">{{ p.name }}</div>
+                <div class="wf-cap">{{ p.tag }}</div>
+              </div>
+            </a>
+          </sc-for>
+        </div>
+        <div style="margin-top:calc(var(--space-3)*var(--wf-space-mult))"><span class="wf-annot">click any folder → opens its Person Folder (3a) · infinite vertical scroll ↓</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="dv-opt" id="2b">
+      <div class="dv-olabel"><a class="dv-oid" href="#2b">2b</a>Freeform scatter + grouping</div>
+      <div class="dv-card" style="width:560px;height:400px;padding:calc(var(--space-4)*var(--wf-space-mult));position:relative;overflow:hidden">
+        <div style="font-family:var(--font-heading);font-weight:var(--wf-heading-weight);font-size:20px;margin-bottom:6px">Startup</div>
+        <div style="position:absolute;left:40px;top:70px" class="wf-folder"><div class="wf-folder-tab"></div><div class="wf-avatar" style="margin:0 auto"><img src="uploads/noun-cat-8144321.svg"></div><div style="font-size:12px;text-align:center">Jordan A.</div></div>
+        <div style="position:absolute;left:210px;top:110px" class="wf-folder"><div class="wf-folder-tab"></div><div class="wf-avatar" style="margin:0 auto"><img src="uploads/noun-fish-1585670.svg"></div><div style="font-size:12px;text-align:center">Mina O.</div></div>
+        <div style="position:absolute;left:340px;top:60px" class="wf-folder"><div class="wf-folder-tab"></div><div class="wf-avatar" style="margin:0 auto"><img src="uploads/noun-jellyfish-1585683.svg"></div><div style="font-size:12px;text-align:center">Tuan N.</div></div>
+        <div style="position:absolute;left:60px;top:230px" class="wf-folder"><div class="wf-folder-tab"></div><div class="wf-avatar" style="margin:0 auto"><img src="uploads/noun-star-1607744.svg"></div><div style="font-size:12px;text-align:center">Ava K.</div></div>
+        <div style="position:absolute;left:270px;top:250px;border:1px dashed var(--color-text);border-radius:calc(var(--radius-md)*var(--wf-radius-mult));width:150px;height:90px" class="wf-annot" title="manual group"></div>
+        <span class="wf-annot" style="position:absolute;left:250px;top:20px">drag anywhere · groups persist per view</span>
+      </div>
+    </div>
+    <div class="dv-opt" id="2c">
+      <div class="dv-olabel"><a class="dv-oid" href="#2c">2c</a>List rail + spatial preview</div>
+      <div class="dv-card" style="width:640px;height:380px;padding:0;display:flex">
+        <div style="width:200px;border-right:1px solid var(--color-divider);padding:calc(var(--space-3)*var(--wf-space-mult));display:flex;flex-direction:column;gap:8px">
+          <div class="wf-cap" style="margin-bottom:4px">Startup · 18</div>
+          <sc-for list="{{ people4 }}" as="p" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:8px;padding:6px 4px;border-radius:calc(var(--radius-sm)*var(--wf-radius-mult))">
+              <div class="wf-avatar" style="width:26px;height:26px"><img src="{{ p.iconSrc }}" style="width:14px;height:14px"></div>
+              <div style="font-size:13px">{{ p.name }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="flex:1;padding:calc(var(--space-3)*var(--wf-space-mult));position:relative">
+          <span class="wf-annot" style="position:absolute;top:12px;right:12px">canvas mirrors list selection</span>
+          <div class="wf-folder" style="position:absolute;left:40px;top:60px;width:110px"><div class="wf-folder-tab"></div><div class="wf-avatar" style="margin:0 auto"><img src="uploads/noun-cat-8144321.svg"></div><div style="font-size:12px;text-align:center">Jordan A.</div></div>
+          <div class="wf-folder" style="position:absolute;left:190px;top:110px;width:110px"><div class="wf-folder-tab"></div><div class="wf-avatar" style="margin:0 auto"><img src="uploads/noun-dog-1567382.svg"></div><div style="font-size:12px;text-align:center">Riley C.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="dv-next">Try next: "more like 2b but snap-to-grid on drop" · "add a mini-map for long scatter canvases" · "combine 2a's grid with 2c's rail"</p>
+</section>
+
+<section class="dv-turn" id="t3">
+  <div class="dv-thd"><a class="dv-tid" href="#t3">3</a><span class="dv-tname">Person Folder — one record's canvas</span></div>
+  <div class="dv-opts">
+    <div class="dv-opt" id="3a">
+      <div class="dv-olabel"><a class="dv-oid" href="#3a">3a</a>Freeform canvas, all item types mixed</div>
+      <div class="dv-card" style="width:780px;padding:0;display:flex;flex-direction:column;position:relative">
+        <div class="wf-topnav">
+          <a href="#t0" class="wf-nav-brand" style="text-decoration:none;color:inherit">🗄</a>
+          <a href="#t1" class="current">Cabinets</a>
+          <a href="#5a">All People</a>
+          <a href="#11a" class="wf-search-icon">🔍</a>
+        </div>
+        <a href="#9a" title="Click to open Trash · drag an item here to delete it" style="position:absolute;left:14px;bottom:14px;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;background:#fff;z-index:2">🗑️</a>
+        <span class="wf-annot" style="position:absolute;left:60px;bottom:26px;z-index:2">drag a card here to delete it · click to open Trash</span>
+        <div style="padding:calc(var(--space-4)*var(--wf-space-mult)) calc(var(--space-4)*var(--wf-space-mult)) 0">
+        <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:8px;font-size:12px;color:var(--color-neutral-600)"><a href="#t1">Cabinets</a>&nbsp;›&nbsp;<a href="#2a">Startup</a>&nbsp;›&nbsp;Jordan Alvarez</div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:calc(var(--space-3)*var(--wf-space-mult))">
+          <div class="wf-avatar wf-avatar-lg"><img src="uploads/noun-cat-8144321.svg"></div>
+          <div>
+            <div style="font-family:var(--font-heading);font-weight:var(--wf-heading-weight);font-size:22px">Jordan Alvarez</div>
+            <div class="wf-cap">Startup · Investor</div>
+          </div>
+          <a href="#13a" class="btn btn-secondary" style="margin-left:auto">Share</a>
+          <a href="#8a" class="btn btn-secondary">History</a>
+        </div>
+        <div style="display:flex;justify-content:center;border-top:1px solid var(--color-divider)">
+          <div class="wf-rail">
+            <div class="wf-rail-cap">Add to folder</div>
+            <div class="wf-rail-btn">🔗 Link + embed</div>
+            <div class="wf-rail-btn">🖼 Photo</div>
+            <div class="wf-rail-btn">📝 Note</div>
+            <div class="wf-rail-btn">✉️ Import .eml</div>
+            <div class="wf-rail-btn">📅 Reminder</div>
+            <span class="wf-annot" style="margin-top:8px;white-space:normal;display:block">Click to add here · long-press on mobile</span>
+          </div>
+          <div class="wf-strip">
+            <div class="wf-grid">
+              <div class="wf-att wf-grid-full" style="position:relative">
+                <div class="wf-drag">⠿⠿⠿</div>
+                <div class="wf-att-label">Contact</div>
+                <div class="wf-att-row"><span class="wf-cap">Email</span><span>jordan@northwind.vc</span></div>
+                <div class="wf-att-row"><span class="wf-cap">Phone</span><span>(415) 555-0148</span></div>
+                <div class="wf-att-row" style="border-bottom:none"><span class="wf-cap">Fund size</span><span>$40M</span></div>
+                <div class="wf-att-addfield">+ Add field</div>
+              </div>
+              <div class="wf-att wf-att-link wf-grid-full" style="position:relative">
+                <div class="wf-drag" style="left:8px;top:8px;z-index:1">⠿⠿⠿</div>
+                <div class="wf-att-link-thumb"></div>
+                <div class="wf-att-link-body">
+                  <div style="font-size:12px;font-weight:600">Series A term sheet — Notion</div>
+                  <div class="wf-cap">notion.so</div>
+                </div>
+              </div>
+              <div class="wf-att wf-grid-full" style="position:relative;border-style:dashed;border-width:1.5px">
+                <div class="wf-drag">⠿⠿⠿</div>
+                <div class="wf-att-label">Note</div>
+                <div style="font-size:13px;line-height:1.6">
+                  Met at the Series A demo day, introduced by <a href="#6a" style="font-weight:700">@Ava Kim</a>. Follow up <a href="#7a" style="font-weight:700;text-decoration:underline">📅 Friday morning</a> about the term sheet.
+                </div>
+              </div>
+              <div class="wf-att wf-att-photo2" style="position:relative;background:var(--color-neutral-300)">
+                <div class="wf-drag" style="color:var(--color-neutral-600)">⠿⠿⠿</div>
+              </div>
+              <div class="wf-att wf-att-eml" style="position:relative">
+                <div class="wf-drag">⠿⠿⠿</div>
+                <div class="wf-att-label">.eml</div>
+                <div style="font-size:12px;font-weight:600">re: Series A terms</div>
+                <div class="wf-cap" style="margin-top:4px">from: mina@brightpath.io · Jul 2</div>
+              </div>
+            </div>
+            <span class="wf-annot" style="margin-top:10px;display:inline-flex">drag any card to rearrange · this strip is the mobile width</span>
+          </div>
+          <div class="wf-rail">
+            <div class="wf-rail-cap">Inspector</div>
+            <div class="wf-att" style="position:relative">
+              <div class="wf-att-label">Note</div>
+              <div class="wf-att-row"><span class="wf-cap">Added</span><span>Jul 8</span></div>
+              <div class="wf-att-row" style="border-bottom:none"><span class="wf-cap">Updated</span><span>Jul 8</span></div>
+              <div class="wf-att-addfield" style="color:var(--color-neutral-600)">Delete item</div>
+            </div>
+            <span class="wf-annot" style="margin-top:8px;white-space:normal;display:block">Click a card to inspect · context menu on mobile</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="dv-opt" id="3b">
+      <div class="dv-olabel"><a class="dv-oid" href="#3b">3b</a>Vertical timeline-first (chronological lane)</div>
+      <div class="dv-card" style="width:420px;padding:calc(var(--space-4)*var(--wf-space-mult))">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:calc(var(--space-3)*var(--wf-space-mult))">
+          <div class="wf-avatar"><img src="uploads/noun-cat-8144321.svg"></div>
+          <div style="font-family:var(--font-heading);font-weight:var(--wf-heading-weight);font-size:17px">Jordan Alvarez</div>
+        </div>
+        <div style="position:relative;padding-left:18px;border-left:2px solid var(--color-divider);display:flex;flex-direction:column;gap:calc(var(--space-3)*var(--wf-space-mult))">
+          <div class="wf-ph" style="height:46px">Today · Reminder set</div>
+          <div class="wf-ph" style="height:60px">Jul 8 · Note added</div>
+          <div class="wf-ph" style="height:50px">Jul 2 · Photo added</div>
+          <div class="wf-ph" style="height:46px">Jun 20 · .eml imported</div>
+        </div>
+        <span class="wf-annot" style="margin-top:10px">single lane — collapses cleanly on mobile</span>
+      </div>
+    </div>
+    <div class="dv-opt" id="3c">
+      <div class="dv-olabel"><a class="dv-oid" href="#3c">3c</a>Tabbed sections (Card / Notes / Files / History)</div>
+      <div class="dv-card" style="width:460px;padding:0">
+        <div style="display:flex;gap:0;border-bottom:1px solid var(--color-divider)">
+          <div style="padding:10px 16px;font-size:13px;border-bottom:2px solid var(--color-text);color:var(--color-text)">Card</div>
+          <div style="padding:10px 16px;font-size:13px;color:var(--color-neutral-600)">Notes</div>
+          <div style="padding:10px 16px;font-size:13px;color:var(--color-neutral-600)">Files</div>
+          <div style="padding:10px 16px;font-size:13px;color:var(--color-neutral-600)">History</div>
+        </div>
+        <div style="padding:calc(var(--space-4)*var(--wf-space-mult))">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <div class="wf-avatar"><img src="uploads/noun-cat-8144321.svg"></div>
+            <div style="font-family:var(--font-heading);font-weight:var(--wf-heading-weight);font-size:17px">Jordan Alvarez</div>
+          </div>
+          <div class="wf-ph" style="height:150px">Contact card fields (name / reach-me-at / discovered / custom)</div>
+        </div>
+      </div>
+      <span class="wf-annot">tabs trade spatial freedom for structure</span>
+    </div>
+  </div>
+  <p class="dv-next">Try next: "make 3a snap items to a soft grid" · "merge 3b's lane into 3c's History tab" · "show what a restore-from-history action looks like"</p>
+</section>
+
+<section class="dv-turn" id="t4">
+  <div class="dv-thd"><a class="dv-tid" href="#t4">4</a><span class="dv-tname">Contact Card — Rolodex card</span></div>
+  <div class="dv-opts">
+    <div class="dv-opt" id="4a">
+      <div class="dv-olabel"><a class="dv-oid" href="#4a">4a</a>Card detail / edit panel</div>
+      <div class="dv-card" style="width:380px;padding:calc(var(--space-4)*var(--wf-space-mult))">
+        <a href="#3a" style="font-size:12px;color:var(--color-neutral-600);display:block;margin-bottom:8px">← back to Person Folder</a>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:calc(var(--space-3)*var(--wf-space-mult))">
+          <div class="wf-avatar"><img src="uploads/noun-cat-8144321.svg"></div>
+          <div style="font-family:var(--font-heading);font-weight:var(--wf-heading-weight);font-size:18px">Jordan Alvarez</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:calc(var(--space-2)*var(--wf-space-mult))">
+          <div class="wf-ph" style="height:34px;justify-content:flex-start;padding-left:10px">Email — jordan@northwind.vc</div>
+          <div class="wf-ph" style="height:34px;justify-content:flex-start;padding-left:10px">Phone — (415) 555-0148</div>
+          <div class="wf-ph" style="height:34px;justify-content:flex-start;padding-left:10px">How discovered — Intro from Mina</div>
+          <div class="hr" style="margin:4px 0"></div>
+          <div class="wf-cap">Custom fields</div>
+          <div class="wf-ph" style="height:34px;justify-content:flex-start;padding-left:10px">Fund size (currency) — $40M</div>
+          <div class="wf-ph" style="height:34px;justify-content:flex-start;padding-left:10px">Check size (dropdown) — Seed</div>
+          <div class="wf-ph" style="height:34px;justify-content:flex-start;padding-left:10px">LinkedIn (link)</div>
+        </div>
+        <span class="wf-annot" style="margin-top:10px">these fields become spreadsheet columns</span>
+      </div>
+    </div>
+  </div>
+  <p class="dv-next">Try next: "show inline field-add flow" · "show the currency field's sort affordance"</p>
+</section>
+
+<section class="dv-turn" id="t5">
+  <div class="dv-thd"><a class="dv-tid" href="#t5">5</a><span class="dv-tname">Spreadsheet / Database View</span></div>
+  <div class="dv-opts">
+    <div class="dv-opt" id="5a">
+      <div class="dv-olabel"><a class="dv-oid" href="#5a">5a</a>Table-first, graph as a toggle</div>
+      <div class="dv-card" style="width:900px;padding:0;display:flex;flex-direction:column">
+        <div class="wf-topnav">
+          <a href="#t0" class="wf-nav-brand" style="text-decoration:none;color:inherit">🗄</a>
+          <a href="#t1">Cabinets</a>
+          <a href="#5a" class="current">All People</a>
+          <a href="#11a" class="wf-search-icon">🔍</a>
+        </div>
+        <div style="padding:calc(var(--space-4)*var(--wf-space-mult))">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:calc(var(--space-3)*var(--wf-space-mult))">
+          <div style="font-family:var(--font-heading);font-weight:var(--wf-heading-weight);font-size:20px">All People</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div class="seg" style="font-size:12px"><div class="seg-opt" style="color:var(--color-text);box-shadow:inset 0 0 0 1px var(--color-text)">Table</div><a href="#6a" class="seg-opt" style="text-decoration:none;color:inherit">Graph</a></div>
+            <a href="#10a" class="btn btn-secondary" style="font-size:12px">Edit fields</a>
+          </div>
+        </div>
+        <table class="table" style="font-size:13px">
+          <thead><tr><th></th><th>Name</th><th>Cabinet</th><th>Discovered</th><th>Fund size</th></tr></thead>
+          <tbody>
+            <sc-for list="{{ people6 }}" as="p" hint-placeholder-count="6">
+              <tr>
+                <td><div class="wf-avatar" style="width:24px;height:24px"><img src="{{ p.iconSrc }}" style="width:13px;height:13px"></div></td>
+                <td><a href="#3a">{{ p.name }}</a></td>
+                <td><span class="tag tag-neutral">{{ p.tag }}</span></td>
+                <td class="wf-cap">—</td>
+                <td style="font-variant-numeric:tabular-nums">$—</td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+        <span class="wf-annot" style="margin-top:10px">columns = contact card + custom fields, sortable/filterable · click a name → Person Folder</span>
+        </div>
+      </div>
+    </div>
+    <div class="dv-opt" id="5b">
+      <div class="dv-olabel"><a class="dv-oid" href="#5b">5b</a>Split — table left, graph pinned right</div>
+      <div class="dv-card" style="width:720px;height:340px;padding:0;display:flex">
+        <div style="flex:1;padding:calc(var(--space-3)*var(--wf-space-mult));overflow:hidden">
+          <table class="table" style="font-size:12px">
+            <thead><tr><th></th><th>Name</th><th>Cabinet</th></tr></thead>
+            <tbody>
+              <sc-for list="{{ people4 }}" as="p" hint-placeholder-count="4">
+                <tr><td><div class="wf-avatar" style="width:20px;height:20px"><img src="{{ p.iconSrc }}" style="width:11px;height:11px"></div></td><td>{{ p.name }}</td><td class="wf-cap">{{ p.tag }}</td></tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+        <div style="width:280px;border-left:1px solid var(--color-divider);padding:calc(var(--space-3)*var(--wf-space-mult))">
+          <div class="wf-cap" style="margin-bottom:8px">Relationship graph</div>
+          <div class="wf-ph" style="height:230px">nodes = people, edges = @mentions, click node → filters table</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="dv-next">Try next: "add saved filter views" · "show a currency column sorted descending" · "add row-select → bulk cabinet assign"</p>
+</section>
+
+<section class="dv-turn" id="t6">
+  <div class="dv-thd"><a class="dv-tid" href="#t6">6</a><span class="dv-tname">Relationship Graph — expanded</span></div>
+  <div class="dv-opts">
+    <div class="dv-opt" id="6a">
+      <div class="dv-olabel"><a class="dv-oid" href="#6a">6a</a>Focused node + connections</div>
+      <div class="dv-card" style="width:560px;height:360px;padding:calc(var(--space-4)*var(--wf-space-mult));position:relative">
+        <div class="wf-avatar wf-avatar-lg" style="position:absolute;left:250px;top:150px"><img src="uploads/noun-cat-8144321.svg"></div>
+        <div class="wf-avatar" style="position:absolute;left:60px;top:60px"><img src="uploads/noun-fish-1585670.svg"></div>
+        <div class="wf-avatar" style="position:absolute;left:420px;top:70px"><img src="uploads/noun-star-1607744.svg"></div>
+        <div class="wf-avatar" style="position:absolute;left:60px;top:260px"><img src="uploads/noun-jellyfish-1585683.svg"></div>
+        <div class="wf-avatar" style="position:absolute;left:430px;top:270px"><img src="uploads/noun-dog-1567382.svg"></div>
+        <svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none">
+          <line x1="270" y1="170" x2="80" y2="80" stroke="var(--color-text)" stroke-width="1.5"></line>
+          <line x1="270" y1="170" x2="440" y2="90" stroke="var(--color-text)" stroke-width="1.5"></line>
+          <line x1="270" y1="170" x2="80" y2="270" stroke="var(--color-text)" stroke-width="1.5"></line>
+          <line x1="270" y1="170" x2="440" y2="280" stroke="var(--color-text)" stroke-width="1.5"></line>
+        </svg>
+        <span class="wf-annot" style="position:absolute;left:290px;top:200px">"met Mina via —"</span>
+        <span class="wf-annot" style="position:absolute;left:14px;bottom:10px">edge label = @mention context sentence</span>
+      </div>
+    </div>
+  </div>
+  <p class="dv-next">Try next: "add a second hop of connections" · "show what happens with no mentions yet (empty state)"</p>
+</section>
+
+<section class="dv-turn" id="t7">
+  <div class="dv-thd"><a class="dv-tid" href="#t7">7</a><span class="dv-tname">Reminders composer + Calendar View</span></div>
+  <div class="dv-opts">
+    <div class="dv-opt" id="7a">
+      <div class="dv-olabel"><a class="dv-oid" href="#7a">7a</a>Composer modal over Calendar</div>
+      <div class="dv-card" style="width:900px;padding:0;display:flex;flex-direction:column;position:relative">
+        <div class="wf-topnav">
+          <a href="#t0" class="wf-nav-brand" style="text-decoration:none;color:inherit">🗄</a>
+          <a href="#t1">Cabinets</a>
+          <a href="#5a">All People</a>
+          <a href="#11a" class="wf-search-icon">🔍</a>
+        </div>
+        <div style="padding:calc(var(--space-4)*var(--wf-space-mult));position:relative">
+        <div style="font-family:var(--font-heading);font-weight:var(--wf-heading-weight);font-size:20px;margin-bottom:calc(var(--space-3)*var(--wf-space-mult))">Calendar</div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;opacity:.5">
+          <sc-for list="{{ people4 }}" as="p" hint-placeholder-count="7">
+            <div class="wf-ph" style="height:70px">week</div>
+          </sc-for>
+          <div class="wf-ph" style="height:70px">week</div><div class="wf-ph" style="height:70px">week</div><div class="wf-ph" style="height:70px">week</div>
+        </div>
+        <div class="dialog-backdrop" style="position:absolute;inset:0;border-radius:calc(var(--radius-lg)*var(--wf-radius-mult))">
+          <div class="dialog">
+            <div class="dialog-title">New reminder — Jordan Alvarez</div>
+            <div class="wf-ph" style="height:36px;justify-content:flex-start;padding-left:10px">Date — Jul 24</div>
+            <div class="seg"><div class="seg-opt">Morning</div><div class="seg-opt" style="color:var(--color-text);box-shadow:inset 0 0 0 1px var(--color-text)">Afternoon</div><div class="seg-opt">Evening</div></div>
+            <textarea class="input" placeholder="Optional note — follow up about the Series A intro" rows="2"></textarea>
+            <div class="dialog-actions"><div class="btn btn-secondary">Cancel</div><div class="btn btn-primary" style="color:var(--color-text);border-color:var(--color-text);font-weight:700">Save reminder</div></div>
+            <span class="wf-annot">syncs one-way to an iCal feed — no in-app push</span>
+          </div>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="dv-next">Try next: "show the iCal subscribe instructions screen" · "show a day with 3 reminders stacked"</p>
+</section>
+
+<section class="dv-turn" id="t8">
+  <div class="dv-thd"><a class="dv-tid" href="#t8">8</a><span class="dv-tname">Timeline / History ("Rewind")</span></div>
+  <div class="dv-opts">
+    <div class="dv-opt" id="8a">
+      <div class="dv-olabel"><a class="dv-oid" href="#8a">8a</a>Scrubber over a folder's past states</div>
+      <div class="dv-card" style="width:600px;padding:calc(var(--space-4)*var(--wf-space-mult))">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:calc(var(--space-3)*var(--wf-space-mult))">
+          <div class="wf-avatar"><img src="uploads/noun-cat-8144321.svg"></div>
+          <div style="font-family:var(--font-heading);font-weight:var(--wf-heading-weight);font-size:17px">Jordan Alvarez — History</div>
+        </div>
+        <div style="position:relative;height:6px;background:var(--color-divider);border-radius:3px;margin:20px 10px">
+          <div style="position:absolute;left:12%;top:-5px;width:16px;height:16px;border-radius:50%;background:var(--color-text)"></div>
+          <div style="position:absolute;left:40%;top:-5px;width:16px;height:16px;border-radius:50%;background:var(--color-neutral-400)"></div>
+          <div style="position:absolute;left:68%;top:-5px;width:16px;height:16px;border-radius:50%;background:var(--color-neutral-400)"></div>
+          <div style="position:absolute;left:92%;top:-5px;width:16px;height:16px;border-radius:50%;background:var(--color-neutral-400)"></div>
+        </div>
+        <div class="wf-ph" style="height:130px">snapshot at selected point — note text as it read on Jun 20</div>
+        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:calc(var(--space-2)*var(--wf-space-mult))">
+          <div class="btn btn-secondary">Download this version</div>
+          <div class="btn btn-primary" style="color:var(--color-text);border-color:var(--color-text);font-weight:700">Copy into live folder</div>
+        </div>
+        <span class="wf-annot">linear, append-only — no one-click revert</span>
+        <a href="#3a" style="font-size:12px;color:var(--color-neutral-600);display:block;margin-top:10px">← back to Person Folder</a>
+      </div>
+    </div>
+  </div>
+  <p class="dv-next">Try next: "show a diff between two points" · "show what a copied-back item looks like once restored"</p>
+</section>
+
+<section class="dv-turn" id="t9">
+  <div class="dv-thd"><a class="dv-tid" href="#t9">9</a><span class="dv-tname">Trash</span></div>
+  <div class="dv-opts">
+    <div class="dv-opt" id="9a">
+      <div class="dv-olabel"><a class="dv-oid" href="#9a">9a</a>Flat recoverable list</div>
+      <div class="dv-card" style="width:700px;padding:0;display:flex;flex-direction:column">
+        <div class="wf-topnav">
+          <a href="#t0" class="wf-nav-brand" style="text-decoration:none;color:inherit">🗄</a>
+          <a href="#t1">Cabinets</a>
+          <a href="#5a">All People</a>
+          <a href="#11a" class="wf-search-icon">🔍</a>
+        </div>
+        <div style="padding:calc(var(--space-4)*var(--wf-space-mult))">
+        <div style="font-family:var(--font-heading);font-weight:var(--wf-heading-weight);font-size:20px;margin-bottom:calc(var(--space-3)*var(--wf-space-mult))">Trash</div>
+        <table class="table" style="font-size:13px">
+          <thead><tr><th>Item</th><th>From folder</th><th>Deleted on</th><th></th></tr></thead>
+          <tbody>
+            <tr><td>Note — "intro call notes"</td><td><a href="#3a">Jordan Alvarez</a></td><td class="wf-cap">Jul 2</td><td><div class="btn btn-ghost" style="font-size:12px">Restore</div></td></tr>
+            <tr><td>Photo — conference.jpg</td><td>Ava Kim</td><td class="wf-cap">Jun 28</td><td><div class="btn btn-ghost" style="font-size:12px">Restore</div></td></tr>
+            <tr><td>Reminder — "follow up"</td><td>Riley Chen</td><td class="wf-cap">Jun 14</td><td><div class="btn btn-ghost" style="font-size:12px">Restore</div></td></tr>
+          </tbody>
+        </table>
+        <span class="wf-annot" style="margin-top:10px">soft delete only — full metadata retained</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="dv-next">Try next: "add an empty-trash confirmation" · "show auto-purge-after-90-days setting"</p>
+</section>
+
+<section class="dv-turn" id="t10">
+  <div class="dv-thd"><a class="dv-tid" href="#t10">10</a><span class="dv-tname">Custom Fields Engine — settings</span></div>
+  <div class="dv-opts">
+    <div class="dv-opt" id="10a">
+      <div class="dv-olabel"><a class="dv-oid" href="#10a">10a</a>Field list + add-field form</div>
+      <div class="dv-card" style="width:720px;padding:0;display:flex;flex-direction:column">
+        <div class="wf-topnav">
+          <a href="#t0" class="wf-nav-brand" style="text-decoration:none;color:inherit">🗄</a>
+          <a href="#t1">Cabinets</a>
+          <a href="#5a">All People</a>
+          <a href="#11a" class="wf-search-icon">🔍</a>
+        </div>
+        <div style="padding:calc(var(--space-4)*var(--wf-space-mult))">
+        <div style="font-family:var(--font-heading);font-weight:var(--wf-heading-weight);font-size:20px;margin-bottom:calc(var(--space-3)*var(--wf-space-mult))">Custom fields</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:calc(var(--space-3)*var(--wf-space-mult))">
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--color-divider)"><span>Fund size</span><span class="tag tag-neutral">Currency</span></div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--color-divider)"><span>Check size</span><span class="tag tag-neutral">Dropdown</span></div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--color-divider)"><span>Anniversary</span><span class="tag tag-neutral">Date</span></div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0"><span>Newsletter?</span><span class="tag tag-neutral">Checkbox</span></div>
+        </div>
+        <div class="field"><label>New field name</label><div class="input" style="color:var(--color-neutral-600)">e.g. "Referral source"</div></div>
+        <div class="seg" style="margin-top:8px;font-size:12px"><div class="seg-opt">Text</div><div class="seg-opt">Date</div><div class="seg-opt" style="color:var(--color-text);box-shadow:inset 0 0 0 1px var(--color-text)">Select</div><div class="seg-opt">Check</div><div class="seg-opt">Link</div><div class="seg-opt">$</div></div>
+        <div class="btn btn-primary btn-block" style="color:var(--color-text);border-color:var(--color-text);font-weight:700">Add field</div>
+        <span class="wf-annot" style="margin-top:10px">field types feed the Contact Card (4a) and become columns in All People (5a)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="dv-next">Try next: "show how a select field's options are edited" · "show a field being removed and its column disappearing"</p>
+</section>
+
+<section class="dv-turn" id="t11">
+  <div class="dv-thd"><a class="dv-tid" href="#t11">11</a><span class="dv-tname">Global Search</span></div>
+  <div class="dv-opts">
+    <div class="dv-opt" id="11a">
+      <div class="dv-olabel"><a class="dv-oid" href="#11a">11a</a>Results grouped by person</div>
+      <div class="dv-card" style="width:740px;padding:0;display:flex;flex-direction:column">
+        <div class="wf-topnav">
+          <a href="#t0" class="wf-nav-brand" style="text-decoration:none;color:inherit">🗄</a>
+          <a href="#t1">Cabinets</a>
+          <a href="#5a">All People</a>
+          <a href="#11a" class="wf-search-icon current">🔍</a>
+        </div>
+        <div style="padding:calc(var(--space-4)*var(--wf-space-mult))">
+        <div class="input" style="margin-bottom:calc(var(--space-3)*var(--wf-space-mult));display:flex;align-items:center;color:var(--color-neutral-600)">🔍 &nbsp;"series a"</div>
+        <div style="display:flex;flex-direction:column;gap:calc(var(--space-3)*var(--wf-space-mult))">
+          <div>
+            <a href="#3a" style="display:flex;align-items:center;gap:8px;margin-bottom:6px;text-decoration:none;color:inherit"><div class="wf-avatar" style="width:26px;height:26px"><img src="uploads/noun-cat-8144321.svg" style="width:14px;height:14px"></div><b style="font-family:var(--font-heading)">Jordan Alvarez</b></a>
+            <div class="wf-ph" style="height:36px;justify-content:flex-start;padding-left:10px">Note: "…met at <strong>Series A</strong> demo day…"</div>
+          </div>
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><div class="wf-avatar" style="width:26px;height:26px"><img src="uploads/noun-jellyfish-1585683.svg" style="width:14px;height:14px"></div><b style="font-family:var(--font-heading)">Tuan Nguyen</b></div>
+            <div class="wf-ph" style="height:36px;justify-content:flex-start;padding-left:10px">.eml — subject: "re: Series A terms"</div>
+          </div>
+        </div>
+        <span class="wf-annot" style="margin-top:10px">covers names, custom fields, notes, .eml + file text</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="dv-next">Try next: "add filters for item type" · "show zero-results state"</p>
+</section>
+
+<section class="dv-turn" id="t12">
+  <div class="dv-thd"><a class="dv-tid" href="#t12">12</a><span class="dv-tname">Import / Export + duplicate merge</span></div>
+  <div class="dv-opts">
+    <div class="dv-opt" id="12a">
+      <div class="dv-olabel"><a class="dv-oid" href="#12a">12a</a>Import wizard — column mapping</div>
+      <div class="dv-card" style="width:480px;padding:calc(var(--space-4)*var(--wf-space-mult))">
+        <div style="font-family:var(--font-heading);font-weight:var(--wf-heading-weight);font-size:18px;margin-bottom:10px">Import CSV</div>
+        <div class="wf-cap" style="margin-bottom:8px">Step 2 of 3 — map columns</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px">"Full Name"</span><span style="color:var(--color-text)">→</span><span class="tag tag-neutral">Name</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px">"Email Addr"</span><span style="color:var(--color-text)">→</span><span class="tag tag-neutral">Reach-me-at</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px">"Fund $"</span><span style="color:var(--color-text)">→</span><span class="tag tag-neutral">Fund size (custom)</span></div>
+        </div>
+        <a href="#12b" class="btn btn-primary btn-block" style="margin-top:14px;color:var(--color-text);border-color:var(--color-text);font-weight:700">Continue</a>
+      </div>
+    </div>
+    <div class="dv-opt" id="12b">
+      <div class="dv-olabel"><a class="dv-oid" href="#12b">12b</a>Duplicate merge suggestion</div>
+      <div class="dv-card" style="width:480px;padding:calc(var(--space-4)*var(--wf-space-mult))">
+        <div style="font-family:var(--font-heading);font-weight:var(--wf-heading-weight);font-size:18px;margin-bottom:10px">Possible duplicate</div>
+        <div style="display:flex;gap:16px;align-items:center;margin-bottom:12px">
+          <div style="text-align:center"><div class="wf-avatar wf-avatar-lg" style="margin:0 auto"><img src="uploads/noun-cat-8144321.svg"></div><div style="font-size:12px;margin-top:4px">Jordan Alvarez</div></div>
+          <div style="color:var(--color-text);font-size:20px">⇄</div>
+          <div style="text-align:center"><div class="wf-avatar wf-avatar-lg" style="margin:0 auto"><img src="uploads/noun-cat-8217251.svg"></div><div style="font-size:12px;margin-top:4px">J. Alvarez</div></div>
+        </div>
+        <div class="wf-ph" style="height:50px;margin-bottom:10px">matched on: email + phone (fuzzy)</div>
+        <div class="dialog-actions" style="margin:0"><div class="btn btn-secondary">Keep both</div><a href="#3a" class="btn btn-primary" style="color:var(--color-text);border-color:var(--color-text);font-weight:700">Merge records</a></div>
+        <span class="wf-annot" style="margin-top:10px">merge combines fields, attachments, timeline history</span>
+      </div>
+    </div>
+  </div>
+  <p class="dv-next">Try next: "show the export format picker" · "show a 3-way merge conflict on a text field"</p>
+</section>
+
+<section class="dv-turn" id="t13">
+  <div class="dv-thd"><a class="dv-tid" href="#t13">13</a><span class="dv-tname">Sharing — read-only link</span></div>
+  <div class="dv-opts">
+    <div class="dv-opt" id="13a">
+      <div class="dv-olabel"><a class="dv-oid" href="#13a">13a</a>Share modal from a Person Folder</div>
+      <div class="dv-card" style="width:420px;padding:calc(var(--space-4)*var(--wf-space-mult))">
+        <div class="dialog" style="border:none;box-shadow:none;padding:0;background:transparent">
+          <div class="dialog-title">Share Jordan Alvarez</div>
+          <div class="dialog-body">Read-only snapshot — no login required, no live editing.</div>
+          <div class="input" style="color:var(--color-neutral-600)">crm.app/s/8f2a1c…</div>
+          <div class="dialog-actions"><a href="#3a" class="btn btn-secondary">Revoke</a><div class="btn btn-primary" style="color:var(--color-text);border-color:var(--color-text);font-weight:700">Copy link</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="dv-next">Try next: "show a cabinet-level share, not just a person" · "show the read-only page the recipient sees"</p>
+</section>
+
+<section class="dv-turn" id="t14">
+  <div class="dv-thd"><a class="dv-tid" href="#t14">14</a><span class="dv-tname">Responsive — mobile collapse</span></div>
+  <div class="dv-opts">
+    <div class="dv-opt" id="14a">
+      <div class="dv-olabel"><a class="dv-oid" href="#14a">14a</a>Cabinet View, single-lane strip</div>
+      <div class="dv-card" style="width:230px;padding:0;display:flex;flex-direction:column;border-radius:calc(var(--radius-lg)*var(--wf-radius-mult));height:400px">
+        <div style="padding:calc(var(--space-3)*var(--wf-space-mult));flex:1;overflow:hidden">
+          <div style="font-family:var(--font-heading);font-weight:var(--wf-heading-weight);font-size:16px;margin-bottom:8px">Startup</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <sc-for list="{{ people3 }}" as="p" hint-placeholder-count="3">
+              <a href="#14b" class="wf-folder-link">
+                <div class="wf-folder" style="flex-direction:row;align-items:center;justify-content:flex-start;gap:8px;padding:8px">
+                  <div class="wf-avatar" style="width:28px;height:28px"><img src="{{ p.iconSrc }}" style="width:15px;height:15px"></div>
+                  <div style="font-size:12px">{{ p.name }}</div>
+                </div>
+              </a>
+            </sc-for>
+          </div>
+          <span class="wf-annot" style="margin-top:8px;font-size:10px">2D x/y collapses to top-to-bottom order</span>
+        </div>
+        <div class="wf-bottomnav">
+          <a href="#14a" class="current">🗄<span>Cabinets</span></a>
+          <a href="#5a">▦<span>All People</span></a>
+          <a href="#11a">🔍<span>Search</span></a>
+        </div>
+      </div>
+    </div>
+    <div class="dv-opt" id="14b">
+      <div class="dv-olabel"><a class="dv-oid" href="#14b">14b</a>Person Folder, stacked items</div>
+      <div class="dv-card" style="width:230px;padding:0;display:flex;flex-direction:column;border-radius:calc(var(--radius-lg)*var(--wf-radius-mult));height:400px">
+        <div style="padding:calc(var(--space-3)*var(--wf-space-mult));flex:1;overflow:hidden">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <div class="wf-avatar" style="width:32px;height:32px"><img src="uploads/noun-cat-8144321.svg" style="width:17px;height:17px"></div>
+            <div style="font-size:14px;font-family:var(--font-heading);font-weight:var(--wf-heading-weight)">Jordan A.</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div class="wf-att wf-att-note" style="font-size:11px">"met at demo day"</div>
+            <div class="wf-att" style="height:44px"></div>
+            <div class="wf-att-reminder" style="font-size:11px">📅 Fri · Morning</div>
+          </div>
+        </div>
+        <div class="wf-bottomnav">
+          <a href="#14a">🗄<span>Cabinets</span></a>
+          <a href="#5a">▦<span>All People</span></a>
+          <a href="#11a">🔍<span>Search</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="dv-next">Try next: "show the mobile nav bar between Cabinets / Search / Calendar" · "show a mobile item-detail sheet"</p>
+</section>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;headingWeight&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;Semibold&quot;, &quot;options&quot;: [&quot;Semibold&quot;, &quot;Normal&quot;], &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Style tokens&quot;},
+  &quot;density&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;Cozy&quot;, &quot;options&quot;: [&quot;Compact&quot;, &quot;Cozy&quot;, &quot;Airy&quot;], &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Style tokens&quot;},
+  &quot;corner&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;Rounded&quot;, &quot;options&quot;: [&quot;Sharp&quot;, &quot;Rounded&quot;], &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Style tokens&quot;},
+  &quot;iconTint&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;Accent line&quot;, &quot;options&quot;: [&quot;Accent line&quot;, &quot;Filled tag&quot;], &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Person differentiation&quot;},
+  &quot;showAnnotations&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Wireframe aids&quot;}
+}">
+class Component extends DCLogic {
+  people = [
+    { name: 'Jordan Alvarez', icon: 'noun-cat-8144321.svg', tag: 'Startup' },
+    { name: 'Riley Chen', icon: 'noun-dog-1567382.svg', tag: 'College' },
+    { name: 'Mina Okafor', icon: 'noun-fish-1585670.svg', tag: 'Startup' },
+    { name: 'Sana Patel', icon: 'noun-flower-1567356.svg', tag: 'Friends' },
+    { name: 'Tuan Nguyen', icon: 'noun-jellyfish-1585683.svg', tag: 'Startup' },
+    { name: 'Lena Brandt', icon: 'noun-snail-1585637.svg', tag: 'College' },
+    { name: 'Kai Reyes', icon: 'noun-spider-1607747.svg', tag: 'Family' },
+    { name: 'Ava Kim', icon: 'noun-star-1607744.svg', tag: 'Startup' },
+    { name: 'Devon Fischer', icon: 'noun-tree-branch-1567357.svg', tag: 'Mentors' },
+    { name: 'Priya Osei', icon: 'noun-cat-8217251.svg', tag: 'College' },
+  ];
+
+  renderVals() {
+    const p = this.props || {};
+    const headingWeight = p.headingWeight ?? 'Semibold';
+    const density = p.density ?? 'Cozy';
+    const corner = p.corner ?? 'Rounded';
+    const iconTint = p.iconTint ?? 'Accent line';
+    const showAnnotations = p.showAnnotations ?? true;
+
+    const densityMap = { Compact: 0.72, Cozy: 1, Airy: 1.4 };
+    const cornerMap = { Sharp: 0, Rounded: 1 };
+    const weightMap = { Semibold: 600, Normal: 400 };
+    const filled = iconTint === 'Filled tag';
+
+    const rootVars = {
+      '--wf-accent': '#000000',
+      '--wf-space-mult': densityMap[density] ?? 1,
+      '--wf-radius-mult': cornerMap[corner] ?? 1,
+      '--wf-heading-weight': weightMap[headingWeight] ?? 600,
+      '--wf-annot-display': showAnnotations ? 'inline-flex' : 'none',
+      '--wf-icon-bg': filled ? 'var(--color-neutral-200)' : 'transparent',
+      '--wf-icon-filter': 'none',
+      background: '#fff',
+      minHeight: '100vh',
+    };
+
+    const withPath = (arr) => arr.map((x) => ({ ...x, iconSrc: 'uploads/' + x.icon }));
+
+    return {
+      rootVars,
+      peopleAll: withPath(this.people),
+      people6: withPath(this.people.slice(0, 6)),
+      people4: withPath(this.people.slice(0, 4)),
+      people3: withPath(this.people.slice(0, 3)),
+      people2: withPath(this.people.slice(0, 2)),
+    };
+  }
+}
+</script>
+</body>
+</html>

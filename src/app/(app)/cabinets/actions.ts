@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { requirePageUser } from '@/lib/session';
-import { createCabinet, deleteCabinet, listPeopleInCabinet } from '@/lib/repo/cabinets';
+import { createCabinet, deleteCabinet, listPeopleInCabinet, addPeopleToCabinet, getCabinet } from '@/lib/repo/cabinets';
 import { createPerson } from '@/lib/repo/people';
 
 export async function createCabinetAction(formData: FormData) {
@@ -32,5 +32,13 @@ export async function createPersonAction(formData: FormData) {
   const row = Math.floor(count / 4);
   const position = { x: 24 + col * 150, y: 24 + row * 130 };
   await createPerson(user, { name, cabinetIds: [cabinetId], position });
+  revalidatePath(`/cabinets/${cabinetId}`);
+}
+
+export async function addExistingPeopleAction(cabinetId: string, personIds: string[]) {
+  const user = await requirePageUser();
+  const cabinet = await getCabinet(user, cabinetId);
+  if (!cabinet || personIds.length === 0) return;
+  await addPeopleToCabinet(user, cabinetId, personIds);
   revalidatePath(`/cabinets/${cabinetId}`);
 }

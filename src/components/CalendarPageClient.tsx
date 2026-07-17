@@ -17,7 +17,17 @@ export interface PersonOption {
   name: string;
 }
 
-export function CalendarPageClient({ reminders: initial, people, icalUrl }: { reminders: ReminderView[]; people: PersonOption[]; icalUrl: string }) {
+export function CalendarPageClient({
+  reminders: initial,
+  people,
+  icalUrl,
+  caldavConnected,
+}: {
+  reminders: ReminderView[];
+  people: PersonOption[];
+  icalUrl: string;
+  caldavConnected: boolean;
+}) {
   const [reminders, setReminders] = useState(initial);
   const [composerDate, setComposerDate] = useState<string | null>(null);
   const [personId, setPersonId] = useState(people[0]?.id ?? '');
@@ -53,7 +63,10 @@ export function CalendarPageClient({ reminders: initial, people, icalUrl }: { re
         <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: 20 }}>
           Calendar — {firstDay.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <Link href="/settings/caldav" className="cap">
+            {caldavConnected ? 'CalDAV connected ✓' : 'Connect CalDAV calendar →'}
+          </Link>
           <button type="button" className="btn btn-secondary" onClick={() => setShowSubscribe(true)}>
             Subscribe (iCal)
           </button>

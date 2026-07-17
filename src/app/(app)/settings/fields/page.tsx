@@ -1,5 +1,7 @@
+import Link from 'next/link';
 import { requirePageUser } from '@/lib/session';
 import { listCustomFields } from '@/lib/repo/customFields';
+import { getCaldavAccount } from '@/lib/repo/caldav';
 import { NewFieldForm } from '@/components/NewFieldForm';
 import { createCustomFieldAction, deleteCustomFieldAction } from './actions';
 
@@ -14,7 +16,7 @@ const TYPE_LABEL: Record<string, string> = {
 
 export default async function CustomFieldsPage() {
   const user = await requirePageUser();
-  const fields = await listCustomFields(user);
+  const [fields, caldavAccount] = await Promise.all([listCustomFields(user), getCaldavAccount(user)]);
 
   return (
     <div style={{ maxWidth: 480 }}>
@@ -40,6 +42,21 @@ export default async function CustomFieldsPage() {
       <span className="help-text" style={{ marginTop: 10, display: 'block' }}>
         Field types feed the Contact Card and become columns in All People.
       </span>
+
+      <div className="hr" />
+
+      <div className="cap" style={{ marginBottom: 8 }}>
+        Connected accounts
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0' }}>
+        <span>CalDAV calendar</span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span className="cap">{caldavAccount ? `Connected — ${caldavAccount.account}` : 'Not connected'}</span>
+          <Link href="/settings/caldav" className="btn btn-secondary" style={{ fontSize: 12 }}>
+            {caldavAccount ? 'Manage' : 'Connect'}
+          </Link>
+        </span>
+      </div>
     </div>
   );
 }

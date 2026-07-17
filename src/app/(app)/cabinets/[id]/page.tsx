@@ -1,16 +1,17 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { requirePageUser } from '@/lib/session';
-import { getCabinet, listPeopleInCabinet } from '@/lib/repo/cabinets';
+import { getCabinet, listPeopleInCabinet, listPeopleAvailableForCabinet } from '@/lib/repo/cabinets';
 import { CabinetCanvas } from '@/components/CabinetCanvas';
-import { createPersonAction } from '../actions';
+import { AddExistingPeopleDialog } from '@/components/AddExistingPeopleDialog';
+import { createPersonAction, addExistingPeopleAction } from '../actions';
 
 export default async function CabinetViewPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const user = await requirePageUser();
   const cabinet = await getCabinet(user, id);
   if (!cabinet) notFound();
-  const peopleList = await listPeopleInCabinet(user, id);
+  const [peopleList, availablePeople] = await Promise.all([listPeopleInCabinet(user, id), listPeopleAvailableForCabinet(user, id)]);
 
   return (
     <div>
@@ -21,7 +22,10 @@ export default async function CabinetViewPage({ params }: { params: Promise<{ id
           </Link>
           <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: 20 }}>{cabinet.name}</div>
         </div>
-        <span className="cap">{peopleList.length} people</span>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <span className="cap">{peopleList.length} people</span>
+          <AddExistingPeopleDialog cabinetId={id} available={availablePeople} onAdd={addExistingPeopleAction} />
+        </div>
       </div>
 
       <CabinetCanvas cabinetId={id} people={peopleList} />

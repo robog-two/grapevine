@@ -169,6 +169,23 @@ export const timelineEvents = pgTable('timeline_events', {
   personIdx: index('timeline_person_idx').on(t.personId),
 }));
 
+export const caldavAccounts = pgTable('caldav_accounts', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  /**
+   * One-way outbound sync target: reminders are PUT to this CalDAV
+   * collection as they're created. Never read back from — the app remains
+   * the source of truth, this is a mirror.
+   */
+  serverUrlEnc: text('server_url_enc').notNull(),
+  accountEnc: text('account_enc').notNull(),
+  passwordEnc: text('password_enc').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+}, (t) => ({
+  userIdx: uniqueIndex('caldav_accounts_user_idx').on(t.userId),
+}));
+
 export const shareLinks = pgTable('share_links', {
   id: uuid('id').defaultRandom().primaryKey(),
   userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),

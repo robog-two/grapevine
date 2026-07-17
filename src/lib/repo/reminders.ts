@@ -35,7 +35,7 @@ export async function createReminder(
     noteEnc: encryptField(note ?? null, user.dek),
     icalUid,
   });
-  return item;
+  return { ...item, icalUid };
 }
 
 export async function deleteReminder(user: AuthedUser, itemId: string) {

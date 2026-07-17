@@ -1,4 +1,4 @@
-import { and, eq, isNull, sql } from 'drizzle-orm';
+import { and, eq, inArray, isNull, notInArray, sql } from 'drizzle-orm';
 import { db } from '@/db/client';
 import { cabinets, people, peopleCabinets } from '@/db/schema';
 import { encryptField, decryptField, type Dek } from '@/lib/crypto';
@@ -98,4 +98,42 @@ export async function removePersonFromCabinet(personId: string, cabinetId: strin
   await db
     .delete(peopleCabinets)
     .where(and(eq(peopleCabinets.personId, personId), eq(peopleCabinets.cabinetId, cabinetId)));
+}
+
+export interface AvailablePerson {
+  id: string;
+  name: string;
+  iconKey: string;
+}
+
+/** People the user owns who are not yet a member of this cabinet — for the "Add existing" picker. */
+export async function listPeopleAvailableForCabinet(user: AuthedUser, cabinetId: string): Promise<AvailablePerson[]> {
+  const members = await db.select({ id: peopleCabinets.personId }).from(peopleCabinets).where(eq(peopleCabinets.cabinetId, cabinetId));
+  const memberIds = members.map((m) => m.id);
+
+  const rows = await db
+    .select({ id: people.id, nameEnc: people.nameEnc, iconKey: people.iconKey })
+    .from(people)
+    .where(and(eq(people.userId, user.userId), isNull(people.deletedAt), memberIds.length ? notInArray(people.id, memberIds) : undefined));
+
+  return rows.map((r) => ({ id: r.id, name: decryptField(r.nameEnc, user.dek) ?? '', iconKey: r.iconKey }));
+}
+
+/** Assigns existing people (already owned by the user) to a cabinet, skipping anyone already a member. */
+export async function addPeopleToCabinet(user: AuthedUser, cabinetId: string, personIds: string[]): Promise<void> {
+  if (personIds.length === 0) return;
+
+  const owned = await db.select({ id: people.id }).from(people).where(and(eq(people.userId, user.userId), inArray(people.id, personIds)));
+  const ownedIds = new Set(owned.map((o) => o.id));
+
+  const existing = await listPeopleInCabinet(user, cabinetId);
+  let count = existing.length;
+
+  for (const personId of personIds) {
+    if (!ownedIds.has(personId)) continue;
+    const col = count % 4;
+    const row = Math.floor(count / 4);
+    await addPersonToCabinet(personId, cabinetId, 24 + col * 150, 24 + row * 130);
+    count += 1;
+  }
 }

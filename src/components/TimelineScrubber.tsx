@@ -82,7 +82,6 @@ export function TimelineScrubber({ personId, entries }: { personId: string; entr
           Copy into live folder
         </button>
       </div>
-      <span className="help-text">linear, append-only — no one-click revert</span>
     </div>
   );
 }

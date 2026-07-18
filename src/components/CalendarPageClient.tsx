@@ -186,7 +186,6 @@ export function CalendarPageClient({
                 Save reminder
               </button>
             </div>
-            <span className="help-text">syncs one-way to an iCal feed — no in-app push</span>
           </div>
         </div>
       ) : null}

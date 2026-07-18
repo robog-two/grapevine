@@ -41,9 +41,6 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
           </div>
         ))}
       </div>
-      <span className="help-text" style={{ marginTop: 'var(--space-3)', display: 'block' }}>
-        covers names, custom fields, notes, .eml + file text
-      </span>
     </div>
   );
 }

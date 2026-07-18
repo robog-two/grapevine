@@ -39,9 +39,6 @@ export default async function CustomFieldsPage() {
         ))}
       </div>
       <NewFieldForm action={createCustomFieldAction} />
-      <span className="help-text" style={{ marginTop: 10, display: 'block' }}>
-        Field types feed the Contact Card and become columns in All People.
-      </span>
 
       <div className="hr" />
 

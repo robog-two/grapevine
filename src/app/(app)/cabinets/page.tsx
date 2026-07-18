@@ -19,10 +19,6 @@ export default async function CabinetsPage() {
         </form>
       </div>
 
-      <span className="help-text" style={{ display: 'block', marginBottom: 'var(--space-3)' }}>
-        Many-to-many — a person can sit in several cabinets at once.
-      </span>
-
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 'var(--space-4)' }}>
         <Link href="/people" className="folder-link">
           <div className="folder-card" style={{ height: 120 }}>

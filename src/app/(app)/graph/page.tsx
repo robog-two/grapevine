@@ -32,9 +32,6 @@ export default async function GraphPage() {
       ) : (
         <GraphView nodes={nodes} edges={edges} />
       )}
-      <p className="help-text" style={{ marginTop: 'var(--space-4)' }}>
-        edge label = @mention context sentence · click a node to focus its connections
-      </p>
     </div>
   );
 }

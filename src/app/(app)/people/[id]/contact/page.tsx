@@ -25,9 +25,6 @@ export default async function ContactCardPage({ params }: { params: Promise<{ id
         <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: 18 }}>{person.name}</div>
       </div>
       <ContactCard personId={id} email={person.email} phone={person.phone} discovered={person.discovered} fieldDefs={fieldDefs} values={values} />
-      <span className="help-text" style={{ marginTop: 10, display: 'block' }}>
-        These fields become spreadsheet columns in All People.
-      </span>
     </div>
   );
 }

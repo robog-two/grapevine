@@ -83,7 +83,6 @@ export function CaldavConnectForm({
           >
             {busy ? 'Connecting…' : 'Save'}
           </button>
-          <span className="help-text">reminders sync one-way to this CalDAV calendar</span>
         </div>
       )}
 

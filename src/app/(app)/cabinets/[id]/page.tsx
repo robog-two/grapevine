@@ -30,8 +30,7 @@ export default async function CabinetViewPage({ params }: { params: Promise<{ id
 
       <CabinetCanvas cabinetId={id} people={peopleList} />
 
-      <div style={{ marginTop: 'var(--space-3)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
-        <span className="help-text">drag any folder to arrange it · click to open the Person Folder</span>
+      <div style={{ marginTop: 'var(--space-3)', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
         <form action={createPersonAction} style={{ display: 'flex', gap: 8 }}>
           <input type="hidden" name="cabinetId" value={id} />
           <input name="name" className="input" placeholder="New person's name" style={{ width: 180 }} required />

@@ -65,7 +65,7 @@ export default async function PublicSharePage({ params }: { params: Promise<{ to
         ) : null}
 
         <p className="help-text" style={{ marginTop: 'var(--space-4)' }}>
-          Shared {new Date(snapshot.sharedAt).toLocaleDateString()} · this is a static snapshot, not a live view.
+          Shared {new Date(snapshot.sharedAt).toLocaleDateString()}
         </p>
       </div>
     </div>

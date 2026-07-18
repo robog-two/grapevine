@@ -45,9 +45,6 @@ export default async function TrashPage() {
           </tbody>
         </table>
       )}
-      <span className="help-text" style={{ marginTop: 10, display: 'block' }}>
-        soft delete only — full metadata retained
-      </span>
     </div>
   );
 }

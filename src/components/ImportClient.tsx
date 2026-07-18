@@ -176,9 +176,6 @@ export function ImportClient() {
                     </div>
                   ))}
               </div>
-              <span className="help-text" style={{ marginTop: 10, display: 'block' }}>
-                merge combines fields, attachments, and timeline history
-              </span>
             </>
           ) : null}
         </div>

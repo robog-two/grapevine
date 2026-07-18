@@ -38,10 +38,6 @@ export default async function AllPeoplePage() {
 
       <PeopleTable rows={rows} fieldDefs={fieldDefs} />
 
-      <span className="help-text" style={{ marginTop: 10, display: 'block' }}>
-        columns = contact card + custom fields, sortable · click a name → Person Folder
-      </span>
-
       <form action={createPersonQuickAction} style={{ display: 'flex', gap: 8, marginTop: 'var(--space-3)' }}>
         <input name="name" className="input" placeholder="New person's name" style={{ width: 200 }} required />
         <button type="submit" className="btn btn-primary">

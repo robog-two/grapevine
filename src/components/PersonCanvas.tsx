@@ -161,9 +161,6 @@ export function PersonCanvas({
               setBusy(false);
             }}
           />
-          <span className="help-text" style={{ marginTop: 8, display: 'block' }}>
-            Click to add here · long-press on mobile
-          </span>
         </div>
 
         <div className="strip">
@@ -263,9 +260,6 @@ export function PersonCanvas({
               </div>
             ))}
           </div>
-          <span className="help-text" style={{ marginTop: 10, display: 'inline-flex' }}>
-            drag any card to rearrange · this strip is the mobile width
-          </span>
         </div>
 
         <div className="rail">

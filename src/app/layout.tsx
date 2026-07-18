@@ -17,8 +17,8 @@ const body = Lora({
 });
 
 export const metadata: Metadata = {
-  title: 'Cabinet — a personal CRM',
-  description: 'A filing cabinet and spreadsheet for the people in your life.',
+  title: 'Grapevine — a personal CRM',
+  description: 'A personal grapevine and spreadsheet for the people in your life.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

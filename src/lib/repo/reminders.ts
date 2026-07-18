@@ -26,7 +26,7 @@ export async function createReminder(
   note?: string,
 ) {
   const item = await createItem(user, personId, 'reminder', { type: 'reminder', note });
-  const icalUid = `${item.id}@cabinet.app`;
+  const icalUid = `${item.id}@grapevine.app`;
   await db.insert(reminders).values({
     itemId: item.id,
     personId,

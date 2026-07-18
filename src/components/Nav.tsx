@@ -17,7 +17,7 @@ export function TopNav({ email }: { email?: string }) {
   return (
     <nav className="app-nav">
       <Link href="/" className="app-nav-brand" aria-label="Home">
-        {'\u{1F5C4}'}
+        {'\u{1F347}'}
       </Link>
       {LINKS.map((l) => (
         <Link key={l.href} href={l.href} className="nav-link" data-current={isCurrent(pathname, l.href)}>

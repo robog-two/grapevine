@@ -14,7 +14,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
   return new NextResponse(ics, {
     headers: {
       'Content-Type': 'text/calendar; charset=utf-8',
-      'Content-Disposition': 'inline; filename="cabinet-reminders.ics"',
+      'Content-Disposition': 'inline; filename="grapevine-reminders.ics"',
     },
   });
 }

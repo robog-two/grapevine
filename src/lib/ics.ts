@@ -28,7 +28,7 @@ function icsEventLines(r: Pick<ReminderRecord, 'icalUid' | 'date' | 'timeOfDay' 
 
 /** Builds a one-way (read-only) iCal feed of every reminder, for a calendar app to subscribe to. */
 export function buildIcsFeed(reminders: ReminderRecord[]): string {
-  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Cabinet//Personal CRM//EN', 'CALSCALE:GREGORIAN', 'X-WR-CALNAME:Cabinet reminders'];
+  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Grapevine//Personal CRM//EN', 'CALSCALE:GREGORIAN', 'X-WR-CALNAME:Grapevine reminders'];
   for (const r of reminders) lines.push(...icsEventLines(r));
   lines.push('END:VCALENDAR');
   return lines.join('\r\n');
@@ -36,6 +36,6 @@ export function buildIcsFeed(reminders: ReminderRecord[]): string {
 
 /** Builds a single-event VCALENDAR document — the resource body a CalDAV PUT pushes to the server. */
 export function buildIcsEvent(reminder: Pick<ReminderRecord, 'icalUid' | 'date' | 'timeOfDay' | 'personName' | 'note'>): string {
-  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Cabinet//Personal CRM//EN', 'CALSCALE:GREGORIAN', ...icsEventLines(reminder), 'END:VCALENDAR'];
+  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Grapevine//Personal CRM//EN', 'CALSCALE:GREGORIAN', ...icsEventLines(reminder), 'END:VCALENDAR'];
   return lines.join('\r\n');
 }

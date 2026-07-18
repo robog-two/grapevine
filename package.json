@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "vercel-build": "tsx src/db/migrate.ts && next build",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

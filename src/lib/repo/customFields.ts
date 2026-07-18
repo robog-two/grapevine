@@ -47,15 +47,14 @@ export async function deleteCustomField(user: AuthedUser, fieldId: string) {
 }
 
 export async function setCustomFieldValue(user: AuthedUser, personId: string, fieldId: string, value: string) {
-  const existing = await db.query.customFieldValues.findFirst({
-    where: and(eq(customFieldValues.personId, personId), eq(customFieldValues.fieldId, fieldId)),
-  });
   const valueEnc = encryptField(value, user.dek)!;
-  if (existing) {
-    await db.update(customFieldValues).set({ valueEnc, updatedAt: new Date() }).where(eq(customFieldValues.id, existing.id));
-  } else {
-    await db.insert(customFieldValues).values({ personId, fieldId, valueEnc });
-  }
+  await db
+    .insert(customFieldValues)
+    .values({ personId, fieldId, valueEnc })
+    .onConflictDoUpdate({
+      target: [customFieldValues.personId, customFieldValues.fieldId],
+      set: { valueEnc, updatedAt: new Date() },
+    });
 }
 
 export async function getCustomFieldValues(user: AuthedUser, personId: string): Promise<Record<string, string>> {

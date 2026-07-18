@@ -1,6 +1,6 @@
 import { and, eq, inArray, isNull, notInArray, sql } from 'drizzle-orm';
 import { db } from '@/db/client';
-import { cabinets, people, peopleCabinets } from '@/db/schema';
+import { cabinets, people, peopleCabinets, cabinetMembers } from '@/db/schema';
 import { encryptField, decryptField, type Dek } from '@/lib/crypto';
 import type { AuthedUser } from '@/lib/session';
 
@@ -11,14 +11,16 @@ export interface CabinetSummary {
 }
 
 export async function listCabinets(user: AuthedUser): Promise<CabinetSummary[]> {
+  // Counts come from the same cabinet_members view the cabinet canvas renders,
+  // so the number on the shelf always matches the people shown inside.
   const rows = await db
     .select({
       id: cabinets.id,
       nameEnc: cabinets.nameEnc,
-      personCount: sql<number>`count(${peopleCabinets.id})::int`,
+      personCount: sql<number>`count(${cabinetMembers.personId})::int`,
     })
     .from(cabinets)
-    .leftJoin(peopleCabinets, eq(peopleCabinets.cabinetId, cabinets.id))
+    .leftJoin(cabinetMembers, eq(cabinetMembers.cabinetId, cabinets.id))
     .where(eq(cabinets.userId, user.userId))
     .groupBy(cabinets.id)
     .orderBy(cabinets.createdAt);
@@ -60,19 +62,12 @@ export interface CabinetPersonPosition {
 
 export async function listPeopleInCabinet(user: AuthedUser, cabinetId: string): Promise<CabinetPersonPosition[]> {
   const rows = await db
-    .select({
-      id: people.id,
-      nameEnc: people.nameEnc,
-      iconKey: people.iconKey,
-      posX: peopleCabinets.posX,
-      posY: peopleCabinets.posY,
-    })
-    .from(peopleCabinets)
-    .innerJoin(people, eq(people.id, peopleCabinets.personId))
-    .where(and(eq(peopleCabinets.cabinetId, cabinetId), isNull(people.deletedAt)));
+    .select()
+    .from(cabinetMembers)
+    .where(and(eq(cabinetMembers.cabinetId, cabinetId), eq(cabinetMembers.userId, user.userId)));
 
   return rows.map((r) => ({
-    id: r.id,
+    id: r.personId,
     name: decryptField(r.nameEnc, user.dek) ?? '',
     iconKey: r.iconKey,
     posX: r.posX,

@@ -1,9 +1,9 @@
-import { and, eq, gte, asc } from 'drizzle-orm';
+import { and, eq, gte, asc, isNull } from 'drizzle-orm';
 import { db } from '@/db/client';
-import { reminders, people } from '@/db/schema';
+import { reminders, people, items } from '@/db/schema';
 import { encryptField, decryptField, type Dek } from '@/lib/crypto';
 import type { AuthedUser } from '@/lib/session';
-import { createItem, softDeleteItem } from './items';
+import { createItem } from './items';
 import { randomToken } from '@/lib/crypto';
 
 export interface ReminderRecord {
@@ -35,11 +35,13 @@ export async function createReminder(
   return { ...item, icalUid };
 }
 
-export async function deleteReminder(user: AuthedUser, itemId: string) {
-  await softDeleteItem(user, itemId);
-}
-
-/** `since` is a UTC instant (ISO 8601) — the calendar page passes a slightly-generous cutoff since "today" depends on the viewer's local timezone. */
+/**
+ * `since` is a UTC instant (ISO 8601) — the calendar page passes a slightly-generous cutoff since "today" depends on the viewer's local timezone.
+ *
+ * A reminder's `items` row (see src/db/schema.ts) is the single source of truth for whether it still exists — deleting it from the
+ * person folder view soft-deletes that row. This joins in `items` and filters on it so a reminder deleted from one view can never
+ * keep showing up as a "phantom" here.
+ */
 export async function listUpcomingReminders(user: AuthedUser, since: string): Promise<ReminderRecord[]> {
   const rows = await db
     .select({
@@ -53,7 +55,8 @@ export async function listUpcomingReminders(user: AuthedUser, since: string): Pr
     })
     .from(reminders)
     .innerJoin(people, eq(people.id, reminders.personId))
-    .where(and(eq(people.userId, user.userId), gte(reminders.remindAt, new Date(since))))
+    .innerJoin(items, eq(items.id, reminders.itemId))
+    .where(and(eq(people.userId, user.userId), isNull(items.deletedAt), gte(reminders.remindAt, new Date(since))))
     .orderBy(asc(reminders.remindAt));
 
   return rows.map((r) => ({
@@ -81,7 +84,8 @@ export async function listAllRemindersForIcal(userId: string, dek: Dek): Promise
     })
     .from(reminders)
     .innerJoin(people, eq(people.id, reminders.personId))
-    .where(eq(people.userId, userId))
+    .innerJoin(items, eq(items.id, reminders.itemId))
+    .where(and(eq(people.userId, userId), isNull(items.deletedAt)))
     .orderBy(asc(reminders.remindAt));
 
   return rows.map((r) => ({

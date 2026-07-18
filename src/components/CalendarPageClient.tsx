@@ -59,6 +59,13 @@ export function CalendarPageClient({
     return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
   }
 
+  // Reminders are items under the hood (see src/lib/repo/items.ts) — deleting through the same
+  // /api/items/:id endpoint the person folder view uses keeps both views looking at one record.
+  async function handleDeleteReminder(id: string) {
+    setReminders((prev) => prev.filter((r) => r.id !== id));
+    await fetch(`/api/items/${id}`, { method: 'DELETE' });
+  }
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3)', flexWrap: 'wrap', gap: 8 }}>
@@ -121,7 +128,14 @@ export function CalendarPageClient({
             </span>
             <span>
               <Link href={`/people/${r.personId}`}>{r.personName}</Link>
-              {r.note ? ` — ${r.note}` : ''}
+              {r.note ? ` — ${r.note}` : ''}{' '}
+              <button
+                type="button"
+                onClick={() => handleDeleteReminder(r.id)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-neutral-600)', font: 'inherit', textDecoration: 'underline', padding: 0 }}
+              >
+                Delete
+              </button>
             </span>
           </div>
         ))}

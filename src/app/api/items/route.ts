@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireSession } from '@/lib/session';
-import { createItem } from '@/lib/repo/items';
+import { createItem, NotFoundError } from '@/lib/repo/items';
 import type { ItemContent, ItemType } from '@/lib/repo/types';
 
 export async function POST(req: NextRequest) {
@@ -13,6 +13,11 @@ export async function POST(req: NextRequest) {
   if (!personId || !type || !content) {
     return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
   }
-  const item = await createItem(user, personId, type, content, { blobUrl, sortIndex: Date.now() });
-  return NextResponse.json({ item });
+  try {
+    const item = await createItem(user, personId, type, content, { blobUrl, sortIndex: Date.now() });
+    return NextResponse.json({ item });
+  } catch (err) {
+    if (err instanceof NotFoundError) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    throw err;
+  }
 }

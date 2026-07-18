@@ -1,10 +1,11 @@
-import { and, eq, isNull, isNotNull, desc, sql } from 'drizzle-orm';
+import { and, eq, inArray, isNull, isNotNull, desc, sql } from 'drizzle-orm';
 import { db } from '@/db/client';
 import { people, peopleCabinets, cabinets, customFields, customFieldValues } from '@/db/schema';
 import { encryptField, decryptField } from '@/lib/crypto';
 import type { AuthedUser } from '@/lib/session';
 import { pickIcon } from '@/lib/icons';
 import { logTimelineEvent } from './timeline';
+import { NotFoundError } from './items';
 
 export interface PersonListItem {
   id: string;
@@ -186,7 +187,10 @@ export async function getCustomFieldValuesForUser(user: AuthedUser) {
 
 export async function mergePeople(user: AuthedUser, keepId: string, mergeId: string) {
   // Reassign cabinets (skip duplicates), items, custom field values, mentions, then delete the merged person.
-  const { items, mentions } = await import('@/db/schema');
+  const { items, mentions, reminders } = await import('@/db/schema');
+
+  const owned = await db.query.people.findMany({ where: and(inArray(people.id, [keepId, mergeId]), eq(people.userId, user.userId)) });
+  if (owned.length !== 2) throw new NotFoundError('Person not found');
 
   const existingCabinets = await db
     .select({ cabinetId: peopleCabinets.cabinetId })
@@ -205,6 +209,9 @@ export async function mergePeople(user: AuthedUser, keepId: string, mergeId: str
   }
 
   await db.update(items).set({ personId: keepId }).where(eq(items.personId, mergeId));
+  // reminders.personId is denormalized off items.personId (see src/db/schema.ts) and must move with it,
+  // or a merged person's reminders silently vanish from the calendar/iCal feed (their person row no longer exists).
+  await db.update(reminders).set({ personId: keepId }).where(eq(reminders.personId, mergeId));
   await db.update(mentions).set({ targetPersonId: keepId }).where(eq(mentions.targetPersonId, mergeId));
   await db.update(mentions).set({ sourcePersonId: keepId }).where(eq(mentions.sourcePersonId, mergeId));
 

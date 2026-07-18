@@ -35,7 +35,29 @@ function toRecord(row: typeof items.$inferSelect, dek: AuthedUser['dek']): ItemR
   };
 }
 
+/** Thrown when the caller's account doesn't own the person/item being read or mutated — routes should map this to a 404. */
+export class NotFoundError extends Error {}
+
+/** Every mutation below must funnel through here first: it's the one place that ties a person to its owning account. */
+async function assertOwnsPerson(userId: string, personId: string): Promise<void> {
+  const row = await db.query.people.findFirst({ where: and(eq(people.id, personId), eq(people.userId, userId)) });
+  if (!row) throw new NotFoundError('Person not found');
+}
+
+/** Resolves an item and confirms it belongs (via its person) to the given account, or throws NotFoundError. */
+async function getOwnedItemRow(userId: string, itemId: string) {
+  const row = await db
+    .select({ item: items })
+    .from(items)
+    .innerJoin(people, eq(people.id, items.personId))
+    .where(and(eq(items.id, itemId), eq(people.userId, userId)))
+    .then((rows) => rows[0]?.item);
+  if (!row) throw new NotFoundError('Item not found');
+  return row;
+}
+
 export async function listItems(user: AuthedUser, personId: string): Promise<ItemRecord[]> {
+  await assertOwnsPerson(user.userId, personId);
   const rows = await db
     .select()
     .from(items)
@@ -45,9 +67,13 @@ export async function listItems(user: AuthedUser, personId: string): Promise<Ite
 }
 
 export async function getItem(user: AuthedUser, itemId: string): Promise<ItemRecord | null> {
-  const row = await db.query.items.findFirst({ where: eq(items.id, itemId) });
-  if (!row) return null;
-  return toRecord(row, user.dek);
+  try {
+    const row = await getOwnedItemRow(user.userId, itemId);
+    return toRecord(row, user.dek);
+  } catch (err) {
+    if (err instanceof NotFoundError) return null;
+    throw err;
+  }
 }
 
 export async function createItem(
@@ -57,6 +83,8 @@ export async function createItem(
   content: ItemContent,
   opts: { posX?: number; posY?: number; sortIndex?: number; blobUrl?: string } = {},
 ): Promise<ItemRecord> {
+  await assertOwnsPerson(user.userId, personId);
+
   const [row] = await db
     .insert(items)
     .values({
@@ -80,8 +108,7 @@ export async function createItem(
 }
 
 export async function updateItemContent(user: AuthedUser, itemId: string, content: ItemContent) {
-  const existing = await db.query.items.findFirst({ where: eq(items.id, itemId) });
-  if (!existing) return;
+  const existing = await getOwnedItemRow(user.userId, itemId);
 
   await db.update(items).set({ contentEnc: encryptJSON(content, user.dek), updatedAt: new Date() }).where(eq(items.id, itemId));
 
@@ -92,25 +119,25 @@ export async function updateItemContent(user: AuthedUser, itemId: string, conten
   await logTimelineEvent(user, existing.personId, itemId, 'updated', `${labelForType(existing.type as ItemType)} updated`, { content });
 }
 
-export async function updateItemPosition(itemId: string, x: number, y: number) {
+export async function updateItemPosition(user: AuthedUser, itemId: string, x: number, y: number) {
+  await getOwnedItemRow(user.userId, itemId);
   await db.update(items).set({ posX: x, posY: y, updatedAt: new Date() }).where(eq(items.id, itemId));
 }
 
-export async function reorderItem(itemId: string, sortIndex: number) {
+export async function reorderItem(user: AuthedUser, itemId: string, sortIndex: number) {
+  await getOwnedItemRow(user.userId, itemId);
   await db.update(items).set({ sortIndex, updatedAt: new Date() }).where(eq(items.id, itemId));
 }
 
 export async function softDeleteItem(user: AuthedUser, itemId: string) {
-  const existing = await db.query.items.findFirst({ where: eq(items.id, itemId) });
-  if (!existing) return;
+  const existing = await getOwnedItemRow(user.userId, itemId);
   await db.update(items).set({ deletedAt: new Date() }).where(eq(items.id, itemId));
   await deleteMentionsForItem(itemId);
   await logTimelineEvent(user, existing.personId, itemId, 'deleted', `${labelForType(existing.type as ItemType)} deleted`, {});
 }
 
 export async function restoreItem(user: AuthedUser, itemId: string) {
-  const existing = await db.query.items.findFirst({ where: eq(items.id, itemId) });
-  if (!existing) return;
+  const existing = await getOwnedItemRow(user.userId, itemId);
   await db.update(items).set({ deletedAt: null }).where(eq(items.id, itemId));
   if (existing.type === 'note') {
     const content = decryptJSON<ItemContent>(existing.contentEnc, user.dek);

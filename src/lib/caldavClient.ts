@@ -46,7 +46,7 @@ export async function testCaldavConnection(creds: CaldavCredentials): Promise<{ 
 }
 
 /** Pushes (or overwrites) a single reminder as a CalDAV resource. One-way — never reads back. */
-export async function pushReminderEvent(creds: CaldavCredentials, reminder: Pick<ReminderRecord, 'icalUid' | 'date' | 'timeOfDay' | 'personName' | 'note'>): Promise<void> {
+export async function pushReminderEvent(creds: CaldavCredentials, reminder: Pick<ReminderRecord, 'icalUid' | 'remindAt' | 'personName' | 'note'>): Promise<void> {
   const url = `${collectionUrl(creds.serverUrl)}${encodeURIComponent(reminder.icalUid)}.ics`;
   const res = await fetch(url, {
     method: 'PUT',

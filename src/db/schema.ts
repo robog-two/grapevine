@@ -6,7 +6,6 @@ import {
   doublePrecision,
   boolean,
   pgEnum,
-  date,
   uniqueIndex,
   index,
 } from 'drizzle-orm/pg-core';
@@ -25,7 +24,6 @@ import {
 
 export const itemTypeEnum = pgEnum('item_type', ['note', 'photo', 'file', 'eml', 'reminder', 'link']);
 export const fieldTypeEnum = pgEnum('field_type', ['text', 'date', 'select', 'checkbox', 'link', 'currency']);
-export const timeOfDayEnum = pgEnum('time_of_day', ['morning', 'afternoon', 'evening']);
 export const changeTypeEnum = pgEnum('change_type', ['created', 'updated', 'deleted', 'restored', 'merged']);
 export const shareScopeEnum = pgEnum('share_scope', ['person', 'cabinet']);
 
@@ -134,14 +132,20 @@ export const reminders = pgTable('reminders', {
   id: uuid('id').defaultRandom().primaryKey(),
   itemId: uuid('item_id').notNull().references(() => items.id, { onDelete: 'cascade' }),
   personId: uuid('person_id').notNull().references(() => people.id, { onDelete: 'cascade' }),
-  date: date('date', { mode: 'string' }).notNull(),
-  timeOfDay: timeOfDayEnum('time_of_day').notNull().default('morning'),
+  /**
+   * The instant the reminder is due, always stored as a UTC timestamp
+   * (Postgres `timestamptz` normalizes to UTC internally regardless of
+   * session timezone). The browser is responsible for converting to/from
+   * the user's local time on the way in and out — see
+   * src/lib/reminderTime.ts.
+   */
+  remindAt: timestamp('remind_at', { withTimezone: true }).notNull(),
   noteEnc: text('note_enc'),
   icalUid: text('ical_uid').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 }, (t) => ({
   itemIdx: uniqueIndex('reminders_item_idx').on(t.itemId),
-  dateIdx: index('reminders_date_idx').on(t.date),
+  remindAtIdx: index('reminders_remind_at_idx').on(t.remindAt),
 }));
 
 export const mentions = pgTable('mentions', {

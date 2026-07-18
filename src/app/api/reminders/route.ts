@@ -3,22 +3,20 @@ import { requireSession } from '@/lib/session';
 import { createReminder } from '@/lib/repo/reminders';
 import { getPerson } from '@/lib/repo/people';
 import { syncReminderToCaldav } from '@/lib/caldavSync';
-import type { TimeOfDay } from '@/lib/repo/types';
 
 export async function POST(req: NextRequest) {
   const user = await requireSession();
   const body = await req.json().catch(() => null);
-  if (!body?.personId || !body?.date || !body?.timeOfDay) {
+  if (!body?.personId || !body?.remindAt || Number.isNaN(Date.parse(body.remindAt))) {
     return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
   }
-  const item = await createReminder(user, body.personId, body.date, body.timeOfDay as TimeOfDay, body.note);
+  const item = await createReminder(user, body.personId, body.remindAt, body.note);
 
   const person = await getPerson(user, body.personId);
   if (person) {
     await syncReminderToCaldav(user, {
       icalUid: item.icalUid,
-      date: body.date,
-      timeOfDay: body.timeOfDay,
+      remindAt: body.remindAt,
       personName: person.name,
       note: body.note ?? null,
     });

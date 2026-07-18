@@ -2,13 +2,14 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import { localReminderToUtcIso, utcIsoToLocalDate, type TimeOfDay } from '@/lib/reminderTime';
 
 export interface ReminderView {
   id: string;
   personId: string;
   personName: string;
-  date: string;
-  timeOfDay: string;
+  /** UTC instant, ISO 8601. */
+  remindAt: string;
   note: string | null;
 }
 
@@ -31,7 +32,7 @@ export function CalendarPageClient({
   const [reminders, setReminders] = useState(initial);
   const [composerDate, setComposerDate] = useState<string | null>(null);
   const [personId, setPersonId] = useState(people[0]?.id ?? '');
-  const [timeOfDay, setTimeOfDay] = useState<'morning' | 'afternoon' | 'evening'>('morning');
+  const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>('morning');
   const [note, setNote] = useState('');
   const [showSubscribe, setShowSubscribe] = useState(false);
 
@@ -45,8 +46,9 @@ export function CalendarPageClient({
   const byDate = useMemo(() => {
     const map = new Map<string, ReminderView[]>();
     for (const r of reminders) {
-      if (!map.has(r.date)) map.set(r.date, []);
-      map.get(r.date)!.push(r);
+      const localDate = utcIsoToLocalDate(r.remindAt);
+      if (!map.has(localDate)) map.set(localDate, []);
+      map.get(localDate)!.push(r);
     }
     return map;
   }, [reminders]);
@@ -114,7 +116,8 @@ export function CalendarPageClient({
         {reminders.map((r) => (
           <div key={r.id} className="item-row" style={{ border: 'none' }}>
             <span className="cap">
-              {r.date} · {r.timeOfDay}
+              {new Date(r.remindAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} ·{' '}
+              {new Date(r.remindAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
             </span>
             <span>
               <Link href={`/people/${r.personId}`}>{r.personName}</Link>
@@ -153,14 +156,15 @@ export function CalendarPageClient({
                 className="btn btn-primary"
                 disabled={!personId}
                 onClick={async () => {
+                  const remindAt = localReminderToUtcIso(composerDate!, timeOfDay);
                   const res = await fetch('/api/reminders', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ personId, date: composerDate, timeOfDay, note }),
+                    body: JSON.stringify({ personId, remindAt, note }),
                   });
                   const data = await res.json();
                   const person = people.find((p) => p.id === personId);
-                  setReminders((prev) => [...prev, { id: data.item.id, personId, personName: person?.name ?? '', date: composerDate, timeOfDay, note }]);
+                  setReminders((prev) => [...prev, { id: data.item.id, personId, personName: person?.name ?? '', remindAt, note }]);
                   setComposerDate(null);
                   setNote('');
                 }}

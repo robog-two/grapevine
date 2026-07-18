@@ -66,7 +66,7 @@ async function main() {
     date: new Date('2026-07-02').toISOString(),
     bodyText: 'Sounds good — sending the redline shortly.',
   });
-  await createReminder(user, jordanId, '2026-07-24', 'morning', 'Follow up about the Series A intro');
+  await createReminder(user, jordanId, new Date('2026-07-24T09:00:00Z').toISOString(), 'Follow up about the Series A intro');
 
   await createItem(user, minaId, 'note', { type: 'note', text: `Connected us — see [[Jordan Alvarez|person:${jordanId}]].` });
 

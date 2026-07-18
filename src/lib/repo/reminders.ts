@@ -3,7 +3,6 @@ import { db } from '@/db/client';
 import { reminders, people } from '@/db/schema';
 import { encryptField, decryptField, type Dek } from '@/lib/crypto';
 import type { AuthedUser } from '@/lib/session';
-import type { TimeOfDay } from './types';
 import { createItem, softDeleteItem } from './items';
 import { randomToken } from '@/lib/crypto';
 
@@ -12,8 +11,8 @@ export interface ReminderRecord {
   itemId: string;
   personId: string;
   personName: string;
-  date: string;
-  timeOfDay: TimeOfDay;
+  /** UTC instant, ISO 8601 — see reminders.remindAt in src/db/schema.ts. */
+  remindAt: string;
   note: string | null;
   icalUid: string;
 }
@@ -21,8 +20,7 @@ export interface ReminderRecord {
 export async function createReminder(
   user: AuthedUser,
   personId: string,
-  date: string,
-  timeOfDay: TimeOfDay,
+  remindAt: string,
   note?: string,
 ) {
   const item = await createItem(user, personId, 'reminder', { type: 'reminder', note });
@@ -30,8 +28,7 @@ export async function createReminder(
   await db.insert(reminders).values({
     itemId: item.id,
     personId,
-    date,
-    timeOfDay,
+    remindAt: new Date(remindAt),
     noteEnc: encryptField(note ?? null, user.dek),
     icalUid,
   });
@@ -42,30 +39,29 @@ export async function deleteReminder(user: AuthedUser, itemId: string) {
   await softDeleteItem(user, itemId);
 }
 
-export async function listUpcomingReminders(user: AuthedUser, fromDate: string): Promise<ReminderRecord[]> {
+/** `since` is a UTC instant (ISO 8601) — the calendar page passes a slightly-generous cutoff since "today" depends on the viewer's local timezone. */
+export async function listUpcomingReminders(user: AuthedUser, since: string): Promise<ReminderRecord[]> {
   const rows = await db
     .select({
       id: reminders.id,
       itemId: reminders.itemId,
       personId: reminders.personId,
-      date: reminders.date,
-      timeOfDay: reminders.timeOfDay,
+      remindAt: reminders.remindAt,
       noteEnc: reminders.noteEnc,
       icalUid: reminders.icalUid,
       personNameEnc: people.nameEnc,
     })
     .from(reminders)
     .innerJoin(people, eq(people.id, reminders.personId))
-    .where(and(eq(people.userId, user.userId), gte(reminders.date, fromDate)))
-    .orderBy(asc(reminders.date));
+    .where(and(eq(people.userId, user.userId), gte(reminders.remindAt, new Date(since))))
+    .orderBy(asc(reminders.remindAt));
 
   return rows.map((r) => ({
     id: r.id,
     itemId: r.itemId,
     personId: r.personId,
     personName: decryptField(r.personNameEnc, user.dek) ?? '',
-    date: r.date,
-    timeOfDay: r.timeOfDay as TimeOfDay,
+    remindAt: r.remindAt.toISOString(),
     note: decryptField(r.noteEnc, user.dek),
     icalUid: r.icalUid,
   }));
@@ -78,8 +74,7 @@ export async function listAllRemindersForIcal(userId: string, dek: Dek): Promise
       id: reminders.id,
       itemId: reminders.itemId,
       personId: reminders.personId,
-      date: reminders.date,
-      timeOfDay: reminders.timeOfDay,
+      remindAt: reminders.remindAt,
       noteEnc: reminders.noteEnc,
       icalUid: reminders.icalUid,
       personNameEnc: people.nameEnc,
@@ -87,15 +82,14 @@ export async function listAllRemindersForIcal(userId: string, dek: Dek): Promise
     .from(reminders)
     .innerJoin(people, eq(people.id, reminders.personId))
     .where(eq(people.userId, userId))
-    .orderBy(asc(reminders.date));
+    .orderBy(asc(reminders.remindAt));
 
   return rows.map((r) => ({
     id: r.id,
     itemId: r.itemId,
     personId: r.personId,
     personName: decryptField(r.personNameEnc, dek) ?? '',
-    date: r.date,
-    timeOfDay: r.timeOfDay as TimeOfDay,
+    remindAt: r.remindAt.toISOString(),
     note: decryptField(r.noteEnc, dek),
     icalUid: r.icalUid,
   }));

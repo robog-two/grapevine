@@ -9,9 +9,12 @@ import { CalendarPageClient } from '@/components/CalendarPageClient';
 
 export default async function CalendarPage() {
   const user = await requirePageUser();
-  const todayStr = new Date().toISOString().slice(0, 10);
+  // "Today" depends on the viewer's local timezone, which a server component can't know —
+  // look back a day further than UTC-now so no timezone can drop a reminder that's still
+  // "today" locally. The client re-filters/groups everything by local date below.
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
   const [reminders, people, userRow, caldavAccount] = await Promise.all([
-    listUpcomingReminders(user, todayStr),
+    listUpcomingReminders(user, since),
     listAllPeople(user),
     db.query.users.findFirst({ where: eq(users.id, user.userId), columns: { icalToken: true } }),
     getCaldavAccount(user),
@@ -22,7 +25,7 @@ export default async function CalendarPage() {
 
   return (
     <CalendarPageClient
-      reminders={reminders.map((r) => ({ id: r.itemId, personId: r.personId, personName: r.personName, date: r.date, timeOfDay: r.timeOfDay, note: r.note }))}
+      reminders={reminders.map((r) => ({ id: r.itemId, personId: r.personId, personName: r.personName, remindAt: r.remindAt, note: r.note }))}
       people={people.map((p) => ({ id: p.id, name: p.name }))}
       icalUrl={icalUrl}
       caldavConnected={caldavAccount !== null}

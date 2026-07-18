@@ -6,6 +6,7 @@ import { ItemCard, type ItemCardData } from '@/components/items/ItemCard';
 import { ContactCard } from '@/components/ContactCard';
 import { NoteEditor, type MentionCandidate } from '@/components/NoteEditor';
 import type { CustomFieldDef } from '@/lib/repo/customFields';
+import { localReminderToUtcIso, type TimeOfDay } from '@/lib/reminderTime';
 
 type AddMode = null | 'link' | 'photo' | 'note' | 'eml' | 'reminder';
 
@@ -37,7 +38,7 @@ export function PersonCanvas({
   const [linkUrl, setLinkUrl] = useState('');
   const [linkTitle, setLinkTitle] = useState('');
   const [reminderDate, setReminderDate] = useState('');
-  const [reminderTime, setReminderTime] = useState<'morning' | 'afternoon' | 'evening'>('morning');
+  const [reminderTime, setReminderTime] = useState<TimeOfDay>('morning');
   const [reminderNote, setReminderNote] = useState('');
   const [busy, setBusy] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -201,10 +202,11 @@ export function PersonCanvas({
                   setAddMode(null);
                 }}
                 onCreateReminder={async (date, timeOfDay, note) => {
+                  const remindAt = localReminderToUtcIso(date, timeOfDay);
                   await fetch('/api/reminders', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ personId, date, timeOfDay, note }),
+                    body: JSON.stringify({ personId, remindAt, note }),
                   });
                 }}
               />
@@ -234,10 +236,11 @@ export function PersonCanvas({
                   type="button"
                   disabled={!reminderDate}
                   onClick={async () => {
+                    const remindAt = localReminderToUtcIso(reminderDate, reminderTime);
                     const res = await fetch('/api/reminders', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ personId, date: reminderDate, timeOfDay: reminderTime, note: reminderNote }),
+                      body: JSON.stringify({ personId, remindAt, note: reminderNote }),
                     });
                     const data = await res.json();
                     setItems((prev) => [...prev, data.item]);

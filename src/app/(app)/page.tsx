@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { requirePageUser } from '@/lib/session';
 import { listRecentPeople } from '@/lib/repo/people';
 import { iconSrc } from '@/lib/icons';
+import { GreetingHeading } from '@/components/GreetingHeading';
 
 export default async function HomePage() {
   const user = await requirePageUser();
@@ -9,7 +10,7 @@ export default async function HomePage() {
 
   return (
     <div>
-      <h1 style={{ fontSize: 24, marginBottom: 'var(--space-3)' }}>Good {timeOfDayGreeting()}</h1>
+      <GreetingHeading />
 
       <div className="cap" style={{ marginBottom: 8 }}>
         Jump to
@@ -68,11 +69,4 @@ export default async function HomePage() {
       </div>
     </div>
   );
-}
-
-function timeOfDayGreeting() {
-  const hour = new Date().getHours();
-  if (hour < 12) return 'morning';
-  if (hour < 18) return 'afternoon';
-  return 'evening';
 }

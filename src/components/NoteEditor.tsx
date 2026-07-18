@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import type { TimeOfDay } from '@/lib/reminderTime';
 
 export interface MentionCandidate {
   id: string;
@@ -18,13 +19,13 @@ export function NoteEditor({
   people: MentionCandidate[];
   onSave: (text: string) => void;
   onCancel: () => void;
-  onCreateReminder?: (date: string, timeOfDay: 'morning' | 'afternoon' | 'evening', note: string) => void;
+  onCreateReminder?: (date: string, timeOfDay: TimeOfDay, note: string) => void;
 }) {
   const [text, setText] = useState(initialText);
   const [menu, setMenu] = useState<null | { kind: 'mention'; query: string } | { kind: 'slash' }>(null);
   const [dateForm, setDateForm] = useState<null | { forReminder: boolean }>(null);
   const [dateVal, setDateVal] = useState('');
-  const [timeOfDay, setTimeOfDay] = useState<'morning' | 'afternoon' | 'evening'>('morning');
+  const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>('morning');
   const [reminderNote, setReminderNote] = useState('');
   const [linkForm, setLinkForm] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');

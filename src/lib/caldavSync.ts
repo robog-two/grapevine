@@ -9,7 +9,7 @@ import { pushReminderEvent } from '@/lib/caldavClient';
  * the reminder itself, since the app (not the external calendar) is the
  * source of truth.
  */
-export async function syncReminderToCaldav(user: AuthedUser, reminder: Pick<ReminderRecord, 'icalUid' | 'date' | 'timeOfDay' | 'personName' | 'note'>): Promise<void> {
+export async function syncReminderToCaldav(user: AuthedUser, reminder: Pick<ReminderRecord, 'icalUid' | 'remindAt' | 'personName' | 'note'>): Promise<void> {
   const creds = await getCaldavCredentials(user);
   if (!creds) return;
   try {

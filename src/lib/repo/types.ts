@@ -1,7 +1,6 @@
 export type ChangeType = 'created' | 'updated' | 'deleted' | 'restored' | 'merged';
 export type ItemType = 'note' | 'photo' | 'file' | 'eml' | 'reminder' | 'link';
 export type FieldType = 'text' | 'date' | 'select' | 'checkbox' | 'link' | 'currency';
-export type TimeOfDay = 'morning' | 'afternoon' | 'evening';
 
 export interface ContactRow {
   label: string;

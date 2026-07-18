@@ -1,20 +1,16 @@
 import type { ReminderRecord } from '@/lib/repo/reminders';
 
-const TIME_OF_DAY_HOUR: Record<string, number> = { morning: 9, afternoon: 14, evening: 18 };
-
-function icsDate(dateStr: string, timeOfDay: string): string {
-  const hour = TIME_OF_DAY_HOUR[timeOfDay] ?? 9;
-  const [y, m, d] = dateStr.split('-').map(Number);
-  const dt = new Date(Date.UTC(y, m - 1, d, hour, 0, 0));
-  return dt.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+/** `remindAt` is already a UTC instant (see reminders.remindAt in src/db/schema.ts) — ICS DTSTART is written in UTC ("Z" form), so every calendar app renders it in its own local timezone. */
+function icsDate(remindAt: string): string {
+  return new Date(remindAt).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
 }
 
 function escapeText(s: string): string {
   return s.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
 }
 
-function icsEventLines(r: Pick<ReminderRecord, 'icalUid' | 'date' | 'timeOfDay' | 'personName' | 'note'>): string[] {
-  const start = icsDate(r.date, r.timeOfDay);
+function icsEventLines(r: Pick<ReminderRecord, 'icalUid' | 'remindAt' | 'personName' | 'note'>): string[] {
+  const start = icsDate(r.remindAt);
   return [
     'BEGIN:VEVENT',
     `UID:${r.icalUid}`,
@@ -35,7 +31,7 @@ export function buildIcsFeed(reminders: ReminderRecord[]): string {
 }
 
 /** Builds a single-event VCALENDAR document — the resource body a CalDAV PUT pushes to the server. */
-export function buildIcsEvent(reminder: Pick<ReminderRecord, 'icalUid' | 'date' | 'timeOfDay' | 'personName' | 'note'>): string {
+export function buildIcsEvent(reminder: Pick<ReminderRecord, 'icalUid' | 'remindAt' | 'personName' | 'note'>): string {
   const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Grapevine//Personal CRM//EN', 'CALSCALE:GREGORIAN', ...icsEventLines(reminder), 'END:VCALENDAR'];
   return lines.join('\r\n');
 }

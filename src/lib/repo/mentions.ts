@@ -1,18 +1,22 @@
-import { eq, or } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { db } from '@/db/client';
-import { mentions, people } from '@/db/schema';
+import { mentions, mentionEdges, people } from '@/db/schema';
 import { encryptField, decryptField } from '@/lib/crypto';
 import type { AuthedUser } from '@/lib/session';
 import { extractMentions } from '@/lib/richtext';
 
-/** Re-derives the @mention edges for one note item from its current text. */
+/**
+ * Re-derives the @mention edges for one note item from its current text.
+ * Only the target person is stored per edge — the source person is the
+ * item's person and is re-derived by the `mention_edges` view (3NF), so a
+ * note moving to another person (e.g. a merge) re-points its edges for free.
+ */
 export async function syncMentionsForItem(user: AuthedUser, sourcePersonId: string, sourceItemId: string, text: string) {
   await db.delete(mentions).where(eq(mentions.sourceItemId, sourceItemId));
   const found = extractMentions(text);
   for (const m of found) {
     if (m.personId === sourcePersonId) continue; // no self-edges
     await db.insert(mentions).values({
-      sourcePersonId,
       targetPersonId: m.personId,
       sourceItemId,
       contextSnippetEnc: encryptField(m.context, user.dek)!,
@@ -46,7 +50,7 @@ export async function getRelationshipGraph(user: AuthedUser): Promise<{ nodes: G
   const nodeIds = new Set(nodes.map((n) => n.id));
   if (nodeIds.size === 0) return { nodes, edges: [] };
 
-  const edgeRows = await db.select().from(mentions).where(or(...peopleRows.map((p) => eq(mentions.sourcePersonId, p.id))));
+  const edgeRows = await db.select().from(mentionEdges).where(eq(mentionEdges.userId, user.userId));
 
   const edges: GraphEdge[] = edgeRows
     .filter((e) => nodeIds.has(e.sourcePersonId) && nodeIds.has(e.targetPersonId))

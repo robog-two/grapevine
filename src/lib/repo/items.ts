@@ -1,6 +1,6 @@
-import { and, eq, isNull, isNotNull, asc } from 'drizzle-orm';
+import { and, eq, asc } from 'drizzle-orm';
 import { db } from '@/db/client';
-import { items, people } from '@/db/schema';
+import { items, people, activeItems, trashedItems } from '@/db/schema';
 import { encryptJSON, decryptJSON } from '@/lib/crypto';
 import type { AuthedUser } from '@/lib/session';
 import type { ItemContent, ItemType } from './types';
@@ -20,7 +20,20 @@ export interface ItemRecord {
   updatedAt: Date;
 }
 
-function toRecord(row: typeof items.$inferSelect, dek: AuthedUser['dek']): ItemRecord {
+interface ItemRow {
+  id: string;
+  personId: string;
+  type: string;
+  posX: number;
+  posY: number;
+  sortIndex: number;
+  contentEnc: string;
+  blobUrl: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+function toRecord(row: ItemRow, dek: AuthedUser['dek']): ItemRecord {
   return {
     id: row.id,
     personId: row.personId,
@@ -60,9 +73,9 @@ export async function listItems(user: AuthedUser, personId: string): Promise<Ite
   await assertOwnsPerson(user.userId, personId);
   const rows = await db
     .select()
-    .from(items)
-    .where(and(eq(items.personId, personId), isNull(items.deletedAt)))
-    .orderBy(asc(items.sortIndex));
+    .from(activeItems)
+    .where(and(eq(activeItems.personId, personId), eq(activeItems.userId, user.userId)))
+    .orderBy(asc(activeItems.sortIndex));
   return rows.map((r) => toRecord(r, user.dek));
 }
 
@@ -158,17 +171,9 @@ export interface TrashEntry {
 export async function listTrash(user: AuthedUser): Promise<TrashEntry[]> {
   const { decryptField } = await import('@/lib/crypto');
   const rows = await db
-    .select({
-      id: items.id,
-      personId: items.personId,
-      type: items.type,
-      contentEnc: items.contentEnc,
-      deletedAt: items.deletedAt,
-      personNameEnc: people.nameEnc,
-    })
-    .from(items)
-    .innerJoin(people, eq(people.id, items.personId))
-    .where(and(eq(people.userId, user.userId), isNotNull(items.deletedAt)));
+    .select()
+    .from(trashedItems)
+    .where(eq(trashedItems.userId, user.userId));
 
   return rows.map((r) => {
     const content = decryptJSON<ItemContent>(r.contentEnc, user.dek);

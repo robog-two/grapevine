@@ -1,6 +1,6 @@
 import { and, eq } from 'drizzle-orm';
 import { db } from '@/db/client';
-import { shareLinks } from '@/db/schema';
+import { shareLinks, shareLinkDetails } from '@/db/schema';
 import { encryptJSON, decryptJSON, randomToken } from '@/lib/crypto';
 import { keyFromShareToken } from '@/lib/shareCrypto';
 import type { AuthedUser } from '@/lib/session';
@@ -47,11 +47,12 @@ export async function createPersonShareLink(user: AuthedUser, personId: string):
   const token = randomToken(20);
   const snapshotEnc = encryptJSON(snapshot, keyFromShareToken(token));
 
+  // No stored scope: a link's scope is derived from which target column is
+  // set (see the share_link_details view in src/db/schema.ts).
   const [row] = await db
     .insert(shareLinks)
     .values({
       userId: user.userId,
-      scope: 'person',
       personId,
       token,
       snapshotEnc,
@@ -73,7 +74,7 @@ export async function revokeShareLink(user: AuthedUser, id: string) {
 }
 
 export async function getPublicShareSnapshot(token: string): Promise<ShareSnapshot | null> {
-  const row = await db.query.shareLinks.findFirst({ where: eq(shareLinks.token, token) });
+  const [row] = await db.select().from(shareLinkDetails).where(eq(shareLinkDetails.token, token));
   if (!row || row.revoked) return null;
   return decryptJSON<ShareSnapshot>(row.snapshotEnc, keyFromShareToken(token));
 }

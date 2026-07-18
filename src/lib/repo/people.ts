@@ -1,6 +1,6 @@
-import { and, eq, inArray, isNull, isNotNull, desc, sql } from 'drizzle-orm';
+import { and, eq, inArray, isNull, isNotNull, desc } from 'drizzle-orm';
 import { db } from '@/db/client';
-import { people, peopleCabinets, cabinets, customFields, customFieldValues } from '@/db/schema';
+import { people, peopleCabinets, cabinets, customFields, customFieldValues, peopleDirectory } from '@/db/schema';
 import { encryptField, decryptField } from '@/lib/crypto';
 import type { AuthedUser } from '@/lib/session';
 import { pickIcon } from '@/lib/icons';
@@ -17,18 +17,10 @@ export interface PersonListItem {
 
 export async function listAllPeople(user: AuthedUser): Promise<PersonListItem[]> {
   const rows = await db
-    .select({
-      id: people.id,
-      nameEnc: people.nameEnc,
-      iconKey: people.iconKey,
-      updatedAt: people.updatedAt,
-      cabinetNameEnc: cabinets.nameEnc,
-    })
-    .from(people)
-    .leftJoin(peopleCabinets, eq(peopleCabinets.personId, people.id))
-    .leftJoin(cabinets, eq(cabinets.id, peopleCabinets.cabinetId))
-    .where(and(eq(people.userId, user.userId), isNull(people.deletedAt)))
-    .orderBy(people.createdAt);
+    .select()
+    .from(peopleDirectory)
+    .where(eq(peopleDirectory.userId, user.userId))
+    .orderBy(peopleDirectory.createdAt);
 
   const byId = new Map<string, PersonListItem>();
   for (const r of rows) {
@@ -187,7 +179,7 @@ export async function getCustomFieldValuesForUser(user: AuthedUser) {
 
 export async function mergePeople(user: AuthedUser, keepId: string, mergeId: string) {
   // Reassign cabinets (skip duplicates), items, custom field values, mentions, then delete the merged person.
-  const { items, mentions, reminders } = await import('@/db/schema');
+  const { items, mentions } = await import('@/db/schema');
 
   const owned = await db.query.people.findMany({ where: and(inArray(people.id, [keepId, mergeId]), eq(people.userId, user.userId)) });
   if (owned.length !== 2) throw new NotFoundError('Person not found');
@@ -208,12 +200,12 @@ export async function mergePeople(user: AuthedUser, keepId: string, mergeId: str
     }
   }
 
+  // Moving the items is enough for reminders and outgoing mentions: both derive
+  // their person from items.personId (via the reminder_feed / mention_edges
+  // views), so there is no second copy to chase. Only incoming mention edges
+  // store keepId/mergeId directly.
   await db.update(items).set({ personId: keepId }).where(eq(items.personId, mergeId));
-  // reminders.personId is denormalized off items.personId (see src/db/schema.ts) and must move with it,
-  // or a merged person's reminders silently vanish from the calendar/iCal feed (their person row no longer exists).
-  await db.update(reminders).set({ personId: keepId }).where(eq(reminders.personId, mergeId));
   await db.update(mentions).set({ targetPersonId: keepId }).where(eq(mentions.targetPersonId, mergeId));
-  await db.update(mentions).set({ sourcePersonId: keepId }).where(eq(mentions.sourcePersonId, mergeId));
 
   const existingValues = await db
     .select({ fieldId: customFieldValues.fieldId })

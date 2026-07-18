@@ -1,6 +1,6 @@
 import { and, eq, isNull } from 'drizzle-orm';
 import { db } from '@/db/client';
-import { people, items, customFields, customFieldValues } from '@/db/schema';
+import { people, activeItems, customFields, customFieldValues } from '@/db/schema';
 import { decryptField, decryptJSON } from '@/lib/crypto';
 import type { AuthedUser } from '@/lib/session';
 import type { ItemContent } from './types';
@@ -60,14 +60,9 @@ export async function searchAll(user: AuthedUser, query: string): Promise<Search
     }
   }
 
-  const itemRows = await db
-    .select()
-    .from(items)
-    .innerJoin(people, eq(people.id, items.personId))
-    .where(and(eq(people.userId, user.userId), isNull(items.deletedAt)));
+  const itemRows = await db.select().from(activeItems).where(eq(activeItems.userId, user.userId));
 
-  for (const row of itemRows) {
-    const item = row.items;
+  for (const item of itemRows) {
     const person = nameById.get(item.personId);
     if (!person) continue;
     const content = decryptJSON<ItemContent>(item.contentEnc, user.dek);
